@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#087443">
+<title>Product Management System</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E📦%3C/text%3E%3C/svg%3E">
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4.4.1/dist/email.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+:root{--green:#13834b;--dark:#075e38;--light:#effcf4;--line:#d1fae5;--red:#dc2626;--orange:#f59e0b}
+*{box-sizing:border-box;font-family:Arial,sans-serif;margin:0;padding:0}
+body{padding-top:calc(14px + env(safe-area-inset-top,0px))!important;padding-bottom:env(safe-area-inset-bottom,0px);min-height:100vh;background:linear-gradient(135deg,#075e38,#16a34a);padding:14px;color:#1f2937}
+button,input,select{font:inherit}
+button{border:0;border-radius:9px;padding:11px;cursor:pointer}
+button:focus,input:focus,select:focus{outline:2px solid #86efac;outline-offset:1px}
+.box{width:100%;max-width:390px;margin:5vh auto;background:#fff;padding:22px;border-radius:22px;text-align:center;box-shadow:0 10px 25px #0002}
+.page{display:none}
+.logo{font-size:40px;margin-bottom:8px}
+h1{color:#24834d;font-size:22px;margin-bottom:10px;line-height:1.25}
+h3{color:#166534;margin-bottom:14px}
+.subtitle{color:gray;font-size:14px;margin-bottom:15px}
+input,select{width:100%;padding:12px;margin:7px 0;border:1px solid #ccc;border-radius:10px;font-size:14px;background:#fff}
+.green{background:#16a34a;color:white}.red{background:#dc2626;color:white}
+.register-btn{width:100%;background:#effcf4;color:#166534;border:1px solid #16a34a;font-weight:bold;padding:13px;margin-top:8px}
+.forgot-btn{width:100%;background:white;color:#2563eb;margin-top:6px}
+.profile-box{display:none;width:100%;max-width:500px;margin:5vh auto;background:white;padding:22px;border-radius:22px;text-align:center}
+.dashboard-box{display:none;width:100%;max-width:1100px;margin:0 auto;background:#f7faf8;padding:18px;border-radius:22px}
+.top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.user{display:flex;align-items:center;gap:12px}
+.avatar{width:55px;height:55px;border-radius:50%;background:#dcfce7;display:flex;justify-content:center;align-items:center;font-size:30px;cursor:pointer}
+.top h2{font-size:19px;color:#166534}.top p{font-size:13px;color:gray;margin-top:5px}
+.profile-link{font-size:13px;color:#16a34a;cursor:pointer;margin-top:5px}
+.menu{display:grid;grid-template-columns:1fr;gap:0;background:#fff;border:1px solid #d1fae5;border-radius:12px;overflow:hidden;align-self:start}
+.menu button{width:100%;min-height:52px;text-align:left;background:white;color:#166534;border:0;border-bottom:1px solid #d1fae5;border-radius:0;padding:14px 16px;box-shadow:none;font-weight:bold;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.menu button:hover,.category-btn:hover{background:#dcfce7}.menu button:last-child{border-bottom:0}.menu button:active{background:#bbf7d0}
+.content{background:white;padding:18px;margin-top:0;border-radius:15px;box-shadow:0 3px 10px #0001;min-height:260px;min-width:0}
+.dashboard-box.open{display:grid;grid-template-columns:235px minmax(0,1fr);gap:16px;align-items:start}.dashboard-box.open .top{grid-column:1/-1;margin-bottom:0}
+.action{background:#16a34a;color:white;width:100%;margin-top:8px}
+.product{border:1px solid #ddd;border-radius:11px;padding:13px;margin:10px 0;font-size:13px;background:white;line-height:1.7}
+.status{font-weight:bold;margin-top:7px}
+.small{padding:7px 10px;font-size:12px;background:#dc2626;color:white;margin-right:5px}
+.waste-btn{background:#f59e0b;color:white;padding:7px 10px;font-size:12px}
+.edit-btn{background:#2563eb;color:white;padding:7px 10px;font-size:12px}
+.restore-btn{background:#2563eb;color:white;padding:7px 10px;font-size:12px}
+.category-btn{width:100%;background:#effcf4;color:#166534;text-align:left;padding:15px;font-weight:bold;border:1px solid #bbf7d0;margin:6px 0}
+.month-heading{background:#166534;color:white;padding:12px;border-radius:9px;margin-top:16px}
+.scan-btn{width:100%;background:#2563eb;color:white;margin:6px 0}
+.avatar-wrap{position:relative;width:55px;height:55px;flex:none}.avatar-wrap .pencil{position:absolute;right:-5px;bottom:-5px;width:24px;height:24px;min-width:0;padding:0;margin:0;border-radius:50%;background:#2563eb;color:#fff;font-size:12px;line-height:1;border:2px solid #fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.3)}.big-wrap{position:relative;width:130px;height:130px;margin:6px auto 10px}.big-wrap .big-photo{margin:0}.big-wrap .pencil{width:32px;height:32px;font-size:16px;right:2px;bottom:2px}.avatar img,.big-photo img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.big-photo{width:130px;height:130px;border-radius:50%;margin:auto;display:flex;justify-content:center;align-items:center;background:#dcfce7;font-size:75px}
+.details{background:#effcf4;padding:18px;border-radius:18px;text-align:left;margin-bottom:12px}
+.details p{margin:12px 0;color:#374151}
+.badge{background:#dc2626;color:white;border-radius:20px;padding:3px 8px;font-size:12px}
+label{display:block;text-align:left;font-size:13px;margin-top:10px;color:#444}
+.muted{color:#6b7280;font-size:13px;margin:8px 0}
+.empty{padding:18px;text-align:center;color:#6b7280;background:#f9fafb;border-radius:10px;margin-top:10px}
+.back-btn{background:#e5e7eb;color:#374151;width:100%;margin:0 0 12px}
+.row-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-top:10px}.dash-cell{display:flex;flex-direction:column;gap:6px}.dash-tile{width:100%;min-height:140px;background:#effcf4;border:1px solid #bbf7d0;border-radius:14px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#166534;text-align:center}.dash-tile:hover{background:#dcfce7}.dash-tile .dl{font-size:42px;line-height:1}.dash-tile b{font-size:14px;word-break:break-word}.dash-tile small{color:#6b7280;font-size:11px;word-break:break-word}.dash-tile.active{border:2px solid #16a34a;background:#dcfce7}.dash-tile.add{background:#fff;border:2px dashed #16a34a}.dash-mini{display:flex;gap:5px}.dash-mini button{flex:1;padding:6px 4px;font-size:11px}.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.pbar-wrap{margin-top:8px}.pbar{height:10px;background:#e5e7eb;border-radius:6px;overflow:hidden;margin-top:4px}.pbar-fill{height:100%;border-radius:6px}.sort-row{display:flex;gap:8px;margin:8px 0}.sort-row button{flex:1;background:#e5e7eb;color:#374151;font-weight:bold;padding:10px 6px;font-size:13px}.sort-row button.on{background:#16a34a;color:#fff}.slider-box{background:#fff;border:1px solid #bbf7d0;border-radius:12px;padding:12px;margin:8px 0}.slider-top{display:flex;justify-content:space-between;align-items:center;font-size:14px;color:#166534}.slider-top b{font-size:18px}.pslider{-webkit-appearance:none;appearance:none;width:100%;height:10px;padding:0;margin:12px 0 6px;border:0;border-radius:8px;outline:none;background:linear-gradient(to right,#d1fae5,#16a34a)}.pslider.risk{background:linear-gradient(to right,#fef3c7,#dc2626)}.pslider::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#fff;border:3px solid #16a34a;box-shadow:0 1px 5px #0004}.pslider.risk::-webkit-slider-thumb{border-color:#dc2626}.pslider::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#fff;border:3px solid #16a34a}.pslider.risk::-moz-range-thumb{border-color:#dc2626}.slider-ends{display:flex;justify-content:space-between;font-size:12px;color:#6b7280}.avg-line{background:#effcf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px;font-size:13px;color:#166534;margin:6px 0}.stat-card{padding:16px;background:#effcf4;border-radius:12px;text-align:center}
+.stat-card strong{display:block;font-size:25px;color:#13834b;margin-top:6px}
+#scanner{width:100%;margin-top:10px}
+#cloudWarn{display:none;max-width:390px;margin:0 auto 10px;background:#fee2e2;color:#991b1b;border:1px solid #dc2626;border-radius:12px;padding:10px 12px;font-size:13px;text-align:left}#storeWarn{display:none;max-width:390px;margin:0 auto 10px;background:#fef3c7;color:#92400e;border:1px solid #f59e0b;border-radius:12px;padding:10px 12px;font-size:13px;text-align:left}
+#menuLogout{width:auto;min-height:0;justify-self:start;margin:12px 16px;padding:9px 18px;border:0;border-radius:10px;background:#dc2626;color:#fff;display:inline-flex}#menuLogout:hover,#menuLogout:active{background:#b91c1c;color:#fff}
+.menu-toggle{background:#effcf4;color:#166534;border:1px solid #16a34a;font-size:24px;line-height:1;padding:8px 14px;font-weight:bold}#drawer{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9000;justify-content:flex-end}.drawer-panel{width:290px;max-width:85vw;height:100%;background:#fff;display:flex;flex-direction:column;padding:14px;gap:8px;overflow-y:auto;box-shadow:-6px 0 20px #0004}.drawer-head{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid #d1fae5;color:#166534}.drawer-head small{color:#6b7280;word-break:break-all}.drawer-head button{margin-left:auto;background:#e5e7eb;color:#374151;padding:6px 10px}#drawerItems{display:flex;flex-direction:column;flex:1}#drawerItems button{text-align:left;background:#fff;color:#166534;border-bottom:1px solid #d1fae5;border-radius:0;padding:13px 8px;font-weight:bold;display:flex;justify-content:space-between;align-items:center}#drawerItems button:active{background:#bbf7d0}#drawerLogout{width:100%;font-weight:bold}
+#dlg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center;padding:16px}
+.dlg-card{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:340px;text-align:center;box-shadow:0 10px 30px #0004}
+#dlgMsg{white-space:pre-line;margin-bottom:10px;color:#1f2937;font-size:15px;line-height:1.5}
+.dlg-row{display:flex;gap:8px;margin-top:8px}.dlg-row button{flex:1;font-weight:bold}
+#dlgOk{background:#16a34a;color:#fff}#dlgCancel{background:#e5e7eb;color:#374151}
+@media(max-width:700px){.dashboard-box.open{grid-template-columns:1fr}.dashboard-box.open .top{grid-column:1}.menu{width:100%}.content{margin-top:0;min-height:180px}}
+@media(max-width:520px){body{padding:8px}.dashboard-box{padding:12px}.content{padding:13px}.top{align-items:flex-start}}
+
+.fp-steps{display:flex;align-items:center;justify-content:center;gap:6px;margin:4px 0 14px}.fp-dot{width:30px;height:30px;border-radius:50%;background:#e5e7eb;color:#6b7280;font-weight:bold;font-size:14px;display:flex;align-items:center;justify-content:center;flex:none}.fp-dot.on{background:#16a34a;color:#fff}.fp-dot.done{background:#bbf7d0;color:#166534}.fp-line{height:3px;width:34px;background:#e5e7eb;border-radius:2px}.fp-line.done{background:#16a34a}.fp-lbl{display:flex;justify-content:space-between;font-size:11px;color:#6b7280;margin:-8px 4px 12px}
+.str-bar{height:6px;background:#e5e7eb;border-radius:4px;overflow:hidden;margin:2px 0}.str-fill{height:100%;width:0;border-radius:4px;transition:.2s}.hint{font-size:12px;text-align:left;margin:3px 0;min-height:16px}
+.link-btn{background:transparent;color:#2563eb;padding:6px;width:100%;font-size:13px}
+.prof-card{display:flex;align-items:center;gap:14px;background:#effcf4;border:1px solid #bbf7d0;border-radius:16px;padding:14px;margin:6px 0 12px;text-align:left}.prof-card .prof-pic{width:84px;height:84px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:44px;flex:none;overflow:hidden}.prof-card .prof-pic img{width:100%;height:100%;object-fit:cover}.prof-info{min-width:0;flex:1;font-size:14px;line-height:1.7;word-break:break-word}.prof-info b.nm{font-size:17px;color:#166534;display:block}
+#camModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9998;align-items:center;justify-content:center;padding:14px}.cam-card{background:#fff;border-radius:16px;padding:16px;width:100%;max-width:380px;text-align:center}#camVideo{width:100%;aspect-ratio:1/1;object-fit:cover;background:#000;border-radius:12px;transform:scaleX(-1)}#camVideo.back{transform:none}body.dark .cam-card{background:#1f2937;color:#e5e7eb}
+.set-list{margin-top:12px;border:1px solid #d1fae5;border-radius:12px;overflow:hidden}
+.set-row{display:flex;align-items:center;gap:12px;width:100%;padding:14px;background:#fff;border:0;border-bottom:1px solid #d1fae5;border-radius:0;text-align:left;color:#166534;cursor:pointer}
+.set-row:last-child{border-bottom:0}.set-row:active{background:#dcfce7}
+.set-ic{font-size:22px;width:28px;text-align:center;flex:none}.set-tx{display:flex;flex-direction:column;flex:1;min-width:0}.set-tx b{font-size:15px}.set-tx small{color:#6b7280;font-size:12px;margin-top:2px;font-weight:normal}.set-arrow{color:#9ca3af;font-size:24px}
+.set-sel{width:auto;margin:0;padding:8px;font-size:13px}
+.tgl{width:46px;height:26px;border-radius:13px;background:#cbd5e1;position:relative;padding:0;flex:none}.tgl::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}.tgl.on{background:#16a34a}.tgl.on::after{left:23px}
+.warn-box{background:#fef3c7;color:#92400e;border:1px solid #f59e0b;border-radius:10px;padding:10px;font-size:13px;text-align:left;margin:6px 0}
+.ok-box{background:#dcfce7;color:#166534;border:1px solid #86efac;border-radius:10px;padding:10px;font-size:14px;font-weight:bold;margin-bottom:6px}
+.policy h4{color:#166534;margin:14px 0 4px}.policy p,.policy li{font-size:13px;line-height:1.6;color:#374151}.policy ul{padding-left:18px}
+/* ---- Dark mode ---- */
+.top{flex-wrap:nowrap}.top .user{flex:1;min-width:0}.top .menu-toggle{margin-left:auto;flex:none}
+body.dark{background:linear-gradient(135deg,#03150d,#0a2e1d);color:#e5e7eb;color-scheme:dark}
+body.dark .box,body.dark .profile-box,body.dark .dashboard-box{background:#111827;color:#e5e7eb}
+body.dark .content{background:#1f2937;color:#e5e7eb;box-shadow:none}
+body.dark h1,body.dark h3,body.dark .top h2,body.dark .policy h4{color:#86efac}
+body.dark .subtitle,body.dark .muted,body.dark label,body.dark .top p,body.dark .set-tx small,body.dark .drawer-head small{color:#9ca3af}
+body.dark input,body.dark select{background:#0f172a;color:#e5e7eb;border-color:#4b5563}
+body.dark .menu{background:#1f2937;border-color:#374151}
+body.dark .menu button{background:#1f2937;color:#86efac;border-bottom-color:#374151}
+body.dark .menu button:hover,body.dark .category-btn:hover,body.dark .set-row:active,body.dark #drawerItems button:active{background:#14532d}
+body.dark .product{background:#111827;border-color:#374151;color:#e5e7eb}
+body.dark .details,body.dark .stat-card,body.dark .avg-line{background:#0f2a1c;color:#d1fae5}
+body.dark .details p,body.dark .policy p,body.dark .policy li{color:#d1d5db}
+body.dark .category-btn,body.dark .dash-tile{background:#0f2a1c;color:#bbf7d0;border-color:#166534}
+body.dark .category-btn small{color:#9ca3af!important}
+body.dark .dash-tile.active{background:#14532d}body.dark .dash-tile.add{background:transparent}body.dark .dash-tile small{color:#9ca3af}
+body.dark .slider-box{background:#111827;border-color:#166534}body.dark .slider-top{color:#bbf7d0}body.dark .slider-ends{color:#9ca3af}
+body.dark .pbar{background:#374151!important}
+body.dark .empty{background:#111827;color:#9ca3af}
+body.dark .back-btn,body.dark .drawer-head button{background:#374151;color:#e5e7eb}
+body.dark .register-btn{background:#0f2a1c;color:#bbf7d0}
+body.dark .forgot-btn{background:transparent;color:#93c5fd}
+body.dark .avatar,body.dark .big-photo,body.dark .menu-toggle{background:#0f2a1c;color:#bbf7d0}
+body.dark .set-list{border-color:#374151}
+body.dark .set-row{background:#1f2937;color:#86efac;border-bottom-color:#374151}
+body.dark .fp-dot,body.dark .fp-line{background:#374151}body.dark .fp-dot.on,body.dark .fp-line.done{background:#16a34a}body.dark .fp-dot.done{background:#14532d;color:#bbf7d0}body.dark .str-bar{background:#374151}
+body.dark .prof-card{background:#0f2a1c;border-color:#166534}body.dark .prof-card .prof-pic{background:#14532d}body.dark .prof-info b.nm{color:#86efac}
+body.dark .tgl{background:#475569}body.dark .tgl.on{background:#16a34a}
+body.dark .drawer-panel{background:#111827}body.dark .drawer-head{color:#86efac;border-bottom-color:#374151}
+body.dark #drawerItems button{background:#111827;color:#86efac;border-bottom-color:#374151}
+body.dark .dlg-card{background:#1f2937}body.dark #dlgMsg{color:#e5e7eb}body.dark #dlgCancel{background:#374151;color:#e5e7eb}
+body.dark .warn-box{background:#422006;color:#fde68a;border-color:#92400e}
+body.dark .ok-box{background:#052e16;color:#bbf7d0;border-color:#166534}
+</style>
+</head>
+<body>
+
+<div id="cloudWarn">☁️ Cloud sync failed. Please check your internet. Your data is safe on this device and will sync again on the next save.</div>
+<div id="storeWarn">⚠️ Data cannot be saved in this browser/viewer (it will be lost on refresh). Please open this file in Chrome or Safari.</div>
+
+<div class="box" id="loginPage">
+  <div class="logo">🥬</div><h1>PRODUCT MANAGEMENT SYSTEM</h1>
+  <p class="subtitle">Welcome to Product Management System</p>
+  <input type="email" id="loginEmail" placeholder="Enter Gmail" autocomplete="username">
+  <input type="password" id="loginPassword" placeholder="Enter Password" autocomplete="current-password">
+  <button type="button" class="green" style="width:100%" id="loginBtn">LOGIN</button>
+  <button type="button" class="register-btn" id="registerOpenBtn">REGISTER / CREATE ACCOUNT</button>
+  <button type="button" class="forgot-btn" id="forgotBtn">Forgot Password?</button>
+</div>
+
+<div class="box page" id="forgotPage">
+  <div class="logo">🔐</div><h1>FORGOT PASSWORD</h1>
+  <p class="subtitle" id="fpSub">Enter your registered Gmail to receive an OTP</p>
+  <div class="fp-steps" id="fpSteps"><div class="fp-dot on">1</div><div class="fp-line"></div><div class="fp-dot">2</div><div class="fp-line"></div><div class="fp-dot">3</div></div>
+  <div class="fp-lbl"><span>Gmail</span><span>Verify OTP</span><span>New Password</span></div>
+  <div id="fpInfo"></div>
+  <div id="fpStep1">
+    <input type="email" id="fpEmail" placeholder="Enter registered Gmail" autocomplete="email" inputmode="email">
+    <button type="button" class="green" style="width:100%" id="fpSend">SEND OTP</button>
+  </div>
+  <div id="fpStep2" style="display:none">
+    <input type="tel" id="fpOtp" placeholder="Enter 6-digit OTP" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="text-align:center;letter-spacing:6px;font-size:20px">
+    <button type="button" class="green" style="width:100%" id="fpVerify">VERIFY OTP</button>
+    <button type="button" class="register-btn" id="fpResend">RESEND OTP</button>
+    <button type="button" class="link-btn" id="fpWrongMail">Wrong Gmail? Change it</button>
+  </div>
+  <div id="fpStep3" style="display:none">
+    <div class="ok-box">✅ OTP verified successfully</div>
+    <input type="password" id="fpNew" placeholder="New Password (min 6 characters)" autocomplete="new-password">
+    <div class="str-bar"><div class="str-fill" id="fpStrFill"></div></div><div class="hint" id="fpStrTxt"></div>
+    <input type="password" id="fpNew2" placeholder="Confirm New Password" autocomplete="new-password">
+    <div class="hint" id="fpMatch"></div>
+    <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="fpShow" style="width:auto;margin:0"> Show passwords</label>
+    <button type="button" class="green" style="width:100%;margin-top:8px" id="fpChange">CHANGE PASSWORD</button>
+  </div>
+  <button type="button" class="register-btn" id="fpBack">BACK TO LOGIN</button>
+</div>
+
+<div class="box page" id="registerPage">
+  <div class="logo">🥬</div><h1>REGISTER</h1><p class="subtitle">Create Your Account</p>
+  <input id="regName" placeholder="Enter Full Name">
+  <input type="email" id="regEmail" placeholder="Enter Gmail (example@gmail.com)" autocomplete="email" inputmode="email">
+  <input type="tel" id="regMobile" placeholder="Enter Mobile Number">
+  <input type="password" id="regPassword" placeholder="Create Password" autocomplete="new-password">
+  <input type="password" id="regConfirm" placeholder="Confirm Password" autocomplete="new-password">
+  <button type="button" class="green" style="width:100%" id="registerSubmit">REGISTER</button>
+  <button type="button" class="register-btn" id="backLoginBtn">BACK TO LOGIN</button>
+</div>
+
+<div class="profile-box page" id="profilePage">
+  <div class="logo">🥬</div><h1>MY PROFILE</h1>
+  <div class="big-photo" id="profilePhotoBig" style="margin:15px auto">👤</div><h2 id="profileName"></h2>
+  <div class="details">
+    <p><b>Name:</b> <span id="pName"></span></p>
+    <p><b>Email:</b> <span id="pEmail"></span></p>
+    <p><b>Mobile:</b> <span id="pMobile"></span></p>
+    <p><b>Account:</b> Active</p>
+  </div>
+  <button type="button" class="green" style="width:100%" id="dashboardBtn">GO TO DASHBOARD →</button>
+</div>
+
+<div class="dashboard-box page" id="dashboardPage">
+  <div class="top">
+    <div class="user">
+      <div class="avatar-wrap"><div class="avatar" id="photoBtn">👤</div><button type="button" class="pencil" id="photoEditBtn" title="Change photo" aria-label="Change photo">✏️</button><input type="file" id="avatarFile" accept="image/*" style="display:none"><input type="file" id="avatarCamera" accept="image/*" capture="user" style="display:none"></div>
+      <div><h2>Product Management System</h2><p id="dashName"></p><div class="profile-link" id="myProfileBtn">My Profile</div></div>
+    </div>
+  </div>
+  <div class="menu">
+    <button type="button" data-section="dashboards">🏪 My Dashboard</button>
+    <button type="button" data-section="add">➕ Add Product</button>
+    <button type="button" data-section="products">📦 My Products</button>
+    <button type="button" data-section="alerts">🔔 Expiry Alert <span id="alertBadge"></span></button>
+    <button type="button" data-section="safe">✅ Safe Products</button>
+    <button type="button" data-section="search">🔍 Search Product</button>
+    <button type="button" data-section="filter">🎚️ Filter Products</button>
+    <button type="button" data-section="categories">🗂️ Product Categories</button>
+    <button type="button" data-section="stats">📊 Product Statistics</button>
+    <button type="button" data-section="waste">♻️ Waste Record</button>
+    <button type="button" data-section="help">❓ Help</button>
+    <button type="button" data-section="settings">⚙️ Settings</button>
+    <button type="button" class="red" id="menuLogout" >🚪 Logout</button>
+  </div>
+  <div class="content" id="content">
+    <h3>Welcome to Dashboard</h3><p>Select any feature to manage your products.</p>
+  </div>
+</div>
+
+
+<div id="camModal"><div class="cam-card"><h3 style="margin-bottom:10px">📷 Take Photo</h3><video id="camVideo" autoplay playsinline muted></video><canvas id="camCanvas" style="display:none"></canvas><div class="dlg-row"><button type="button" id="camCancel" style="background:#e5e7eb;color:#374151">CANCEL</button><button type="button" id="camSwitch" style="background:#2563eb;color:#fff">🔄 FLIP</button><button type="button" id="camShot" style="background:#16a34a;color:#fff">📸 CAPTURE</button></div></div></div>
+<!-- In-page message box (used instead of alert/confirm/prompt, because some viewers block popups) -->
+<div id="dlg">
+  <div class="dlg-card">
+    <div id="dlgMsg"></div>
+    <input id="dlgInput" style="display:none">
+    <div class="dlg-row"><button type="button" id="dlgCancel">CANCEL</button><button type="button" id="dlgOk">OK</button></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ╔══════════════════════════════════════════════════════════════════════════╗
+   ║  ☁️ SYNC SETUP: Paste your 4 Firebase console values here.                ║
+   ║  Once filled, you can log in with Gmail + password from any device in     ║
+   ║  Chrome and see all of your data.                                         ║
+   ╚══════════════════════════════════════════════════════════════════════════╝ */
+const FIREBASE_CONFIG = { apiKey:"AIzaSyAT3oOIFFYTBAMhTq0LS-j9_VkXaCrbJLM", authDomain:"product-manager-e3334.firebaseapp.com", projectId:"product-manager-e3334", appId:"1:995601206400:web:cb1e65cd728523865c6a65" };
+const $ = id => document.getElementById(id);
+const KEYS = {user:"expiryUser",products:"expiryProducts",waste:"expiryWaste",cats:"expiryCategories",dashes:"expiryDashboards",active:"expiryActiveDash"};
+
+/* ---------- Storage (falls back to memory if localStorage is blocked) ---------- */
+let storageOK = true;
+const mem = {};
+function load(key,fallback){
+ try{
+  const raw = localStorage.getItem(key);
+  if(raw === null) return fallback;
+  const v = JSON.parse(raw);
+  return v ?? fallback;
+ }catch(e){
+  storageOK = false;
+  return (key in mem) ? mem[key] : fallback;
+ }
+}
+function save(key,value){
+ mem[key] = value;
+ try{ localStorage.setItem(key,JSON.stringify(value)); }
+ catch(e){ storageOK = false; }
+}
+function checkStorage(){ $("storeWarn").style.display = storageOK ? "none" : "block"; }
+
+/* ---------- Message boxes (alert / confirm / prompt) ---------- */
+function dlgShow(opts){
+ return new Promise(resolve=>{
+  const overlay=$("dlg"), input=$("dlgInput"), ok=$("dlgOk"), cancel=$("dlgCancel");
+  $("dlgMsg").textContent = opts.msg;
+  input.style.display = opts.input ? "block" : "none";
+  input.type = opts.type || "text";
+  input.value = "";
+  cancel.style.display = opts.cancel ? "block" : "none";
+  ok.textContent = opts.okText || "OK";
+  overlay.style.display = "flex";
+  const done = v => {
+   overlay.style.display = "none";
+   ok.onclick = null; cancel.onclick = null; input.onkeydown = null;
+   resolve(v);
+  };
+  ok.onclick = () => done(opts.input ? input.value : true);
+  cancel.onclick = () => done(opts.input ? null : false);
+  input.onkeydown = e => { if(e.key === "Enter") ok.click(); };
+  setTimeout(() => (opts.input ? input : ok).focus(), 50);
+ });
+}
+const alertBox   = msg => dlgShow({msg});
+const confirmBox = msg => dlgShow({msg,cancel:true,okText:"YES"});
+const promptBox  = (msg,type) => dlgShow({msg,input:true,type,cancel:true});
+
+/* ---------- Helpers & state ---------- */
+function esc(v){return String(v??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));}
+let user = load(KEYS.user,null);
+/* ---------- App info, settings & dark mode ---------- */
+const APP_VERSION = "1.0.0";
+const APP_INFO = { name:"Product Management System", supportEmail:"" };   /* optional: shown in Privacy Policy / About */
+const UPDATE_CHECK_URL = "";   /* optional: link to a JSON file like {"version":"1.1.0","notes":"What is new","url":"https://..."} */
+const SETTINGS_KEY = "pmsSettings";
+let settings = Object.assign({dark:false,notify:false,autoFill:true,defaultAlert:7,lastChecked:""}, load(SETTINGS_KEY,{}) || {});
+function saveSettings(){ save(SETTINGS_KEY,settings); }
+function applyTheme(){
+ document.body.classList.toggle("dark",!!settings.dark);
+ const m=document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute("content",settings.dark?"#03150d":"#087443");
+}
+applyTheme();
+/* Multiple dashboards (one per shop). The "main" dashboard uses the old data keys, so existing data stays safe. */
+let dashboards = load(KEYS.dashes,[]);
+if(!Array.isArray(dashboards)) dashboards = [];
+if(!dashboards.length) dashboards.push({id:"main",name:"Main Dashboard",mobile:"",address:"",createdAt:new Date().toISOString()});
+let activeDash = load(KEYS.active,"main");
+if(!dashboards.some(d=>d.id===activeDash)) activeDash = dashboards[0].id;
+function dkey(base,id=activeDash){ return id==="main" ? base : base+"_"+id; }
+function currentDash(){ return dashboards.find(d=>d.id===activeDash) || dashboards[0]; }
+let products = [], waste = [], customCategories = [];
+function loadDashData(){
+ products = load(dkey(KEYS.products),[]); waste = load(dkey(KEYS.waste),[]); customCategories = load(dkey(KEYS.cats),[]);
+ if(!Array.isArray(products)) products = [];
+ if(!Array.isArray(waste)) waste = [];
+ if(!Array.isArray(customCategories)) customCategories = [];
+}
+loadDashData();
+let scanner = null, lastRender = () => showSection("products");
+const DEFAULT_CATEGORIES = ["Grocery","Dairy","Medicine","Fruits & Vegetables","Cosmetics","Household"];
+const NO_CATEGORY = "Uncategorized", ADD_CATEGORY = "__add_category__";
+
+/* ---------- Pages & buttons ---------- */
+function showPage(id){
+ ["loginPage","registerPage","forgotPage","profilePage","dashboardPage"].forEach(x=>$(x).style.display="none");
+ $(id).style.display = id==="dashboardPage" ? "grid" : "block";
+ if(id==="dashboardPage") $(id).classList.add("open");
+}
+$("registerOpenBtn").onclick = () => showPage("registerPage");
+$("backLoginBtn").onclick = () => showPage("loginPage");
+$("registerSubmit").onclick = register;
+$("loginBtn").onclick = login;
+$("forgotBtn").onclick = openForgot;
+$("dashboardBtn").onclick = dashboard;
+$("menuLogout").onclick = async () => { if(await confirmBox("Do you want to logout?")) logout(); };
+$("photoBtn").onclick = () => showSection("photo");
+$("myProfileBtn").onclick = () => showSection("profile");
+document.querySelectorAll("[data-section]").forEach(b => b.onclick = () => showSection(b.dataset.section));
+
+function saveData(){ save(KEYS.user,user); save(KEYS.dashes,dashboards); save(KEYS.active,activeDash); save(dkey(KEYS.products),products); save(dkey(KEYS.waste),waste); save(dkey(KEYS.cats),customCategories); updateBadge(); checkStorage(); cloudQueue(); }
+
+/* =====================================================================
+   ☁️ CLOUD SYNC (Firebase Auth + Firestore)
+   This saves your Gmail account and all its data (dashboards, products, waste, categories, profile)
+   to the cloud, so it appears on any other device after logging in with the same Gmail + password.
+   Setup: paste your Firebase project's 4 values into FIREBASE_CONFIG below.
+   While apiKey is empty, the app works as before, on this device only (localStorage).
+   ===================================================================== */
+const CLOUD_FAIL = "Cloud service failed to load. Please check your internet and reload the page.";
+const deviceId = Math.random().toString(36).slice(2) + Date.now().toString(36);
+let fbAuth = null, fbDb = null, cloudReady = false, cloudTimer = null, cloudUnsub = null;
+/* 0 = cloud off (local mode), 1 = ready, -1 = configured but Firebase library not loaded */
+function cloudMode(){
+ if(!FIREBASE_CONFIG.apiKey) return 0;
+ if(typeof firebase === "undefined") return -1;
+ if(!fbAuth){
+  try{ firebase.initializeApp(FIREBASE_CONFIG); fbAuth = firebase.auth(); fbDb = firebase.firestore(); }
+  catch(e){ console.error(e); return -1; }
+ }
+ return 1;
+}
+function authMsg(e,ctx){
+ const c = (e && e.code) || "";
+ if(c==="auth/email-already-in-use") return ctx==="login" ? "Invalid Gmail or Password" : "This Gmail is already registered. Please login.";
+ if(["auth/invalid-credential","auth/wrong-password","auth/user-not-found","auth/invalid-login-credentials"].includes(c)) return "Invalid Gmail or Password";
+ if(c==="auth/network-request-failed") return "No internet connection. Please check your connection and try again.";
+ if(c==="auth/too-many-requests") return "Too many attempts. Please try again later.";
+ if(c==="auth/weak-password") return "Password must be at least 6 characters";
+ if(c==="auth/requires-recent-login") return "For security, please logout and login again, then repeat this action.";
+ if(c==="auth/invalid-email") return "Valid Gmail address daalein";
+ if(c==="auth/operation-not-allowed") return "Email/Password sign-in is not enabled in Firebase.";
+ if(c==="auth/unauthorized-domain") return "This website is not added to Firebase Authorized domains.";
+ if(c==="permission-denied" || c==="firestore/permission-denied") return "Cloud permission denied. Please check your Firestore rules.";
+ return (e && e.message) || "Something went wrong. Please try again.";
+}
+function resetLocal(){
+ dashboards = [{id:"main",name:"Main Dashboard",mobile:"",address:"",createdAt:new Date().toISOString()}];
+ activeDash = "main"; products = []; waste = []; customCategories = [];
+}
+function cloudSnapshot(){
+ const data = {};
+ dashboards.forEach(d=>{
+  data[d.id] = { products:load(dkey(KEYS.products,d.id),[]), waste:load(dkey(KEYS.waste,d.id),[]), cats:load(dkey(KEYS.cats,d.id),[]) };
+ });
+ const profile = Object.assign({}, user); delete profile.password;   /* password is never stored in the cloud doc; Firebase Auth handles it */
+ return { profile, dashboards, activeDash, data };
+}
+function applyCloud(s,pw){
+ const keepPw = pw !== undefined ? pw : (user && user.password);
+ user = Object.assign({}, s.profile || {}, {password:keepPw});
+ dashboards = Array.isArray(s.dashboards) && s.dashboards.length ? s.dashboards : [{id:"main",name:"Main Dashboard",mobile:"",address:"",createdAt:new Date().toISOString()}];
+ if(!dashboards.some(d=>d.id===activeDash)) activeDash = dashboards[0].id;
+ dashboards.forEach(d=>{
+  const x = (s.data && s.data[d.id]) || {};
+  save(dkey(KEYS.products,d.id), Array.isArray(x.products)?x.products:[]);
+  save(dkey(KEYS.waste,d.id), Array.isArray(x.waste)?x.waste:[]);
+  save(dkey(KEYS.cats,d.id), Array.isArray(x.cats)?x.cats:[]);
+ });
+ save(KEYS.user,user); save(KEYS.dashes,dashboards); save(KEYS.active,activeDash);
+ loadDashData();
+}
+function cloudQueue(){
+ if(cdbOn){ cdbDirty=true; clearTimeout(cdbTimer); cdbTimer=setTimeout(cdbPush,1200); return; }
+ if(!cloudReady || !fbAuth || !fbAuth.currentUser || !user) return;
+ clearTimeout(cloudTimer); cloudTimer = setTimeout(cloudPush,1200);
+}
+async function cloudPush(){
+ clearTimeout(cloudTimer);
+ if(!cloudReady || !fbAuth || !fbAuth.currentUser || !user) return;
+ const w = $("cloudWarn");
+ try{
+  await fbDb.collection("users").doc(fbAuth.currentUser.uid).set({ json:JSON.stringify(cloudSnapshot()), updatedAt:Date.now(), by:deviceId });
+  if(w) w.style.display = "none";
+ }catch(e){ console.error("Cloud sync error",e); if(w) w.style.display = "block"; }
+}
+/* If something changes on another device, the live update arrives here */
+function cloudWatch(uid){
+ if(cloudUnsub){ cloudUnsub(); cloudUnsub = null; }
+ cloudUnsub = fbDb.collection("users").doc(uid).onSnapshot(snap=>{
+  if(!snap.exists || snap.metadata.hasPendingWrites) return;
+  const d = snap.data(); if(!d || d.by === deviceId) return;
+  try{
+   applyCloud(JSON.parse(d.json));
+   updateDashName(); updateAvatar(); updateBadge();
+   if($("dashboardPage").style.display !== "none") lastRender();
+  }catch(e){ console.error(e); }
+ },e=>console.error(e));
+}
+async function cloudLogin(email,password){
+ let cred;
+ try{ cred = await fbAuth.signInWithEmailAndPassword(email,password); }
+ catch(e){
+  const miss = ["auth/invalid-credential","auth/user-not-found","auth/wrong-password","auth/invalid-login-credentials"].includes(e.code);
+  /* Old local-only account: upgrade to cloud on first login; old data is uploaded too */
+  if(miss && user && user.email===email && user.password===password){
+   try{ cred = await fbAuth.createUserWithEmailAndPassword(email,password); }
+   catch(e2){ return authMsg(e2,"login"); }
+  }else{
+   const m=authMsg(e,"login");
+   return miss ? m+"\n\nIf this account was originally created on only one device, login once on that device first (this moves the account to the cloud). Then login on the other device." : m;
+  }
+ }
+ try{
+  const snap = await fbDb.collection("users").doc(cred.user.uid).get();
+  if(snap.exists){
+   applyCloud(JSON.parse(snap.data().json),password);
+  }else{
+   if(!(user && user.email===email)){ resetLocal(); user = {name:email.split("@")[0],email,mobile:"",password}; }
+   user.password = password;
+  }
+  if(cred.user.email) user.email = cred.user.email;
+  cloudReady = true;
+  saveData(); await cloudPush(); cloudWatch(cred.user.uid);
+  return "";
+ }catch(e){ return authMsg(e); }
+}
+async function cloudSignOut(){
+ if(!fbAuth) return;
+ try{ await cloudPush(); }catch(e){}
+ cloudReady = false; clearTimeout(cloudTimer);
+ if(cloudUnsub){ cloudUnsub(); cloudUnsub = null; }
+ try{ await fbAuth.signOut(); }catch(e){}
+}
+window.addEventListener("online",()=>cloudQueue());
+/* =====================================================================
+   ☁️ CLAUDE CLOUD MODE: data is saved in your Claude account's private storage.
+   Open this link with your Claude account on any device -> login with Gmail + password -> same data everywhere.
+   ===================================================================== */
+let cdbCol=null, cdbOn=false, cdbTimer=null, cdbDirty=false, cdbSeen=0, cdbLastIds=[], cdbDashCache={};
+function cdbSnapshot(){
+ const snap = cloudSnapshot();
+ snap.profile = Object.assign({}, user);            /* private subtree: password is kept here so login works on a new device */
+ return snap;
+}
+async function cdbPush(){
+ clearTimeout(cdbTimer);
+ if(!cdbOn || !cdbCol || !user) return;
+ const w=$("cloudWarn");
+ try{
+  const snap = cdbSnapshot(), now = Date.now();
+  for(const d of dashboards){
+   const j = JSON.stringify(snap.data[d.id]);
+   if(j.length > 240000) throw new Error("This dashboard's data is too large (limit 256 KB).");
+   if(cdbDashCache[d.id] !== j){ await cdbCol.doc("d_"+d.id).set({json:j}); cdbDashCache[d.id] = j; }
+  }
+  for(const old of cdbLastIds){ if(!dashboards.some(d=>d.id===old)){ try{ await cdbCol.doc("d_"+old).delete(); }catch(e){} delete cdbDashCache[old]; } }
+  cdbLastIds = dashboards.map(d=>d.id);
+  const prof = { profile:snap.profile, dashboards:snap.dashboards, activeDash:snap.activeDash };
+  await cdbCol.doc("profile").set({ json:JSON.stringify(prof), updatedAt:now, by:deviceId });
+  cdbSeen = now; cdbDirty = false; if(w) w.style.display="none";
+ }catch(e){ console.error("cdb push",e); if(w){ w.textContent="☁️ Cloud sync failed: "+((e&&e.message)||"error")+". Your data is safe on this device."; w.style.display="block"; } }
+}
+async function cdbPull(force){
+ const ps = await cdbCol.doc("profile").get();
+ if(!ps.exists) return false;
+ const pd = ps.data();
+ if(!force && (pd.updatedAt===cdbSeen || pd.by===deviceId)) return false;
+ const prof = JSON.parse(pd.json), data = {};
+ for(const d of (prof.dashboards||[])){
+  const ds = await cdbCol.doc("d_"+d.id).get();
+  if(ds.exists){ const j = ds.data().json; cdbDashCache[d.id] = j; data[d.id] = JSON.parse(j); }
+ }
+ applyCloud({profile:prof.profile, dashboards:prof.dashboards, data}, prof.profile && prof.profile.password);
+ cdbLastIds = (prof.dashboards||[]).map(d=>d.id); cdbSeen = pd.updatedAt;
+ return true;
+}
+async function cdbInit(){
+ if(FIREBASE_CONFIG.apiKey) return;
+ try{
+  if(typeof claude==="undefined" || !claude.use) throw 0;
+  const [db,u] = await Promise.all([claude.use("db"), claude.use("user")]);
+  if(!db || !u) throw 0;
+  const id = await u.id(); if(!id) throw 0;
+  cdbCol = db.collection("data/users/"+id);
+  const had = await cdbPull(true);
+  cdbOn = true;
+  if(!had && user){ cdbDirty = true; await cdbPush(); }   /* upload this device's old data to the cloud for the first time */
+  document.addEventListener("visibilitychange",async()=>{
+   if(document.visibilityState!=="visible" || !cdbOn || cdbDirty) return;
+   try{ if(await cdbPull(false)){ updateDashName(); updateAvatar(); updateBadge(); if($("dashboardPage").style.display!=="none") lastRender(); } }catch(e){}
+  });
+ }catch(e){
+ }
+}
+const cdbReady = cdbInit();
+
+
+
+/* ---------- Register / Login ---------- */
+async function register(){
+ const name=$("regName").value.trim(), email=$("regEmail").value.trim().toLowerCase(), mobile=$("regMobile").value.trim(),
+       password=$("regPassword").value, confirmPass=$("regConfirm").value;
+ if(!name||!email||!mobile||!password||!confirmPass) return alertBox("Please fill all fields");
+ if(password.length<6) return alertBox("Password must be at least 6 characters");
+ if(password!==confirmPass) return alertBox("Password does not match");
+ const btn=$("registerSubmit"), btnTxt=btn.textContent; btn.disabled=true; btn.textContent="CHECKING GMAIL...";
+ const bad=await checkGmail(email); btn.disabled=false; btn.textContent=btnTxt;
+ if(bad) return alertBox(bad);
+ await cdbReady;
+ const cm = cloudMode();
+ if(cm<0) return alertBox(CLOUD_FAIL);
+ if(cm>0){
+  btn.disabled=true; btn.textContent="CREATING ACCOUNT...";
+  try{ await fbAuth.createUserWithEmailAndPassword(email,password); }
+  catch(e){ btn.disabled=false; btn.textContent=btnTxt; return alertBox(authMsg(e,"register")); }
+  btn.disabled=false; btn.textContent=btnTxt;
+  resetLocal(); user = {name,email,mobile,password}; cloudReady = true; saveData(); await cloudSignOut();
+ }else{
+  if(user && !(await confirmBox("An account already exists on this browser. Replace it? Existing product records will remain."))) return;
+  user = {name,email,mobile,password};
+  saveData();
+ }
+ $("loginEmail").value = email; $("loginPassword").value = "";
+ ["regName","regEmail","regMobile","regPassword","regConfirm"].forEach(id=>$(id).value="");
+ showPage("loginPage");
+ await alertBox("Registration successful! Please login.");
+}
+async function login(){
+ const email=$("loginEmail").value.trim().toLowerCase(), password=$("loginPassword").value;
+ const cm = cloudMode();
+ if(cm<0) return alertBox(CLOUD_FAIL);
+ if(cm>0){
+  if(!email||!password) return alertBox("Please enter Gmail and password");
+  const lb=$("loginBtn"), lt=lb.textContent; lb.disabled=true; lb.textContent="LOGGING IN...";
+  const err = await cloudLogin(email,password);
+  lb.disabled=false; lb.textContent=lt;
+  if(err) return alertBox(err);
+ }else{
+  await cdbReady;
+  if(!user) return alertBox("Please register first!");
+  if(email!==user.email || password!==user.password) return alertBox("Invalid Gmail or Password");
+ }
+ $("profileName").textContent=user.name; $("pName").textContent=user.name;
+ $("pEmail").textContent=user.email; $("pMobile").textContent=user.mobile; updateAvatar();
+ showPage("profilePage");
+}
+/* ===== Gmail OTP (EmailJS) =====
+   Setup: https://www.emailjs.com -> Email Services -> Add Gmail -> copy Service ID
+   Email Templates -> create template (To Email: {{to_email}}, body uses {{otp}}) -> copy Template ID
+   Account -> API Keys -> copy Public Key. Paste the 3 values below. */
+const EMAIL_CONFIG = { serviceId:"service_bk9ik0s", templateId:"template_zwl9ab9", publicKey:"_twJV86P0AV9jAXS0" };
+/* ===== Gmail existence check (online) =====
+   A browser cannot ask Google directly whether a Gmail exists, so an email-verification service does the SMTP check.
+   Setup (free 100 checks/month): https://www.abstractapi.com/api/email-verification-validation-api -> copy your API key -> paste in key below.
+   Any similar service works: put its URL in url with {email} and {key} placeholders; the answer must contain
+   deliverability ("DELIVERABLE"/"UNDELIVERABLE") or email_deliverability.status ("deliverable"/"undeliverable").
+   While key is empty only the Gmail format is checked (name@gmail.com). */
+const EMAIL_VERIFY = { url:"https://emailvalidation.abstractapi.com/v1/?api_key={key}&email={email}", key:"" };
+function verifyConfigured(){ return !!EMAIL_VERIFY.key; }
+/* returns "" when the Gmail is OK, otherwise the message to show */
+async function checkGmail(email){
+ if(!/^[a-z0-9][a-z0-9.+]{1,62}[a-z0-9]@(gmail|googlemail)\.com$/.test(email)||/\.\./.test(email)||email.length>254) return "Enter a valid Gmail address, e.g. name@gmail.com";
+ if(!verifyConfigured()) return "";
+ try{
+  const ctl=new AbortController(), t=setTimeout(()=>ctl.abort(),10000);
+  const res=await fetch(EMAIL_VERIFY.url.replace("{key}",encodeURIComponent(EMAIL_VERIFY.key)).replace("{email}",encodeURIComponent(email)),{cache:"no-store",signal:ctl.signal}); clearTimeout(t);
+  if(!res.ok) throw new Error("status "+res.status);
+  const r=await res.json();
+  const st=String((r&&(r.deliverability||(r.email_deliverability&&r.email_deliverability.status)))||"").toLowerCase();
+  if(st==="deliverable") return "";
+  if(st==="undeliverable") return "This Gmail does not exist. Please check the spelling and enter a real Gmail address.";
+  if(!st) throw new Error("no result");
+  return "This Gmail could not be confirmed as a real Gmail account. Please check it and try again.";
+ }catch(e){ return "Could not check the Gmail online. Please check your internet connection and try again."; }
+}
+function emailConfigured(){ return Object.values(EMAIL_CONFIG).every(v=>v && !String(v).startsWith("YOUR_")); }
+function ensureEmailJS(){
+ if(typeof emailjs!=="undefined") return Promise.resolve(true);
+ return new Promise(res=>{ const sc=document.createElement("script"); sc.src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4.4.1/dist/email.min.js"; sc.onload=()=>res(typeof emailjs!=="undefined"); sc.onerror=()=>res(false); document.head.appendChild(sc); });
+}
+async function sendOtpEmail(to,name,otp){
+ await emailjs.send(EMAIL_CONFIG.serviceId,EMAIL_CONFIG.templateId,{
+  to_email:to, email:to, to_name:name, otp:otp, passcode:otp,
+  app_name:"Product Management System",
+  time:new Date(Date.now()+10*60000).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})
+ },{publicKey:EMAIL_CONFIG.publicKey});
+}
+function genOtp(){ const a=new Uint32Array(1); crypto.getRandomValues(a); return String(100000+(a[0]%900000)); }
+function maskEmail(e){ const [n,d]=e.split("@"); return (n.length<=2?n[0]+"*":n.slice(0,2)+"*".repeat(Math.max(1,n.length-2)))+"@"+d; }
+/* ---------- Forgot password: Gmail -> OTP on Gmail -> verify -> set new password ---------- */
+const fp={otp:null,expires:0,tries:0,lastSent:0,verified:false,timer:null};
+function fpStep(n){
+ [1,2,3].forEach(i=>$("fpStep"+i).style.display=i===n?"block":"none");
+ const dots=$("fpSteps").children; [0,2,4].forEach((d,i)=>dots[d].className="fp-dot"+(i+1<n?" done":i+1===n?" on":"")); [1,3].forEach((l,i)=>dots[l].className="fp-line"+(i+1<n?" done":""));
+ [0,2,4].forEach((d,i)=>{ dots[d].textContent=i+1<n?"✓":String(i+1); });
+ $("fpSub").textContent=n===1?"Enter your registered Gmail to receive an OTP":n===2?"Enter the OTP sent to your Gmail":"Create your new password";
+}
+function fpReset(){
+ clearInterval(fp.timer);
+ Object.assign(fp,{otp:null,expires:0,tries:0,verified:false});
+ ["fpEmail","fpOtp","fpNew","fpNew2"].forEach(id=>$(id).value="");
+ $("fpEmail").disabled=false; $("fpInfo").innerHTML=""; $("fpShow").checked=false;
+ ["fpNew","fpNew2"].forEach(id=>$(id).type="password");
+ $("fpSend").disabled=false; $("fpSend").textContent="SEND OTP";
+ $("fpStrFill").style.width="0"; $("fpStrTxt").textContent=""; $("fpMatch").textContent="";
+ fpStep(1);
+}
+function openForgot(){ fpReset(); fp.lastSent=0; $("fpEmail").value=$("loginEmail").value.trim(); showPage("forgotPage"); }
+function fpCountdown(){
+ clearInterval(fp.timer);
+ const btn=$("fpResend");
+ const tick=()=>{
+  const left=Math.ceil((60000-(Date.now()-fp.lastSent))/1000);
+  if(left>0){ btn.disabled=true; btn.textContent="RESEND OTP ("+left+"s)"; }
+  else { btn.disabled=false; btn.textContent="RESEND OTP"; clearInterval(fp.timer); }
+ };
+ tick(); fp.timer=setInterval(tick,1000);
+}
+async function fpSend(){
+ await cdbReady;
+ if(cdbOn){
+  if(!user) return alertBox("No account found. Please register first!");
+  const em=$("fpEmail").value.trim().toLowerCase();
+  if(!em) return alertBox("Please enter your Gmail");
+  if(em!==user.email) return alertBox("This Gmail is not registered");
+  fp.verified=true; $("fpEmail").disabled=true; fpStep(3);
+  return alertBox("You are signed in with your Claude account, so no OTP is needed. Please set a new password now.");
+ }
+ const cm = cloudMode();
+ if(cm<0) return alertBox(CLOUD_FAIL);
+ if(cm>0){
+  const em = $("fpEmail").value.trim().toLowerCase();
+  if(!em) return alertBox("Please enter your Gmail");
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return alertBox("Enter a valid Gmail address");
+  const b=$("fpSend"), t=b.textContent; b.disabled=true; b.textContent="SENDING...";
+  try{
+   await fbAuth.sendPasswordResetEmail(em);
+   b.disabled=false; b.textContent=t; fpReset(); showPage("loginPage"); $("loginEmail").value=em;
+   await alertBox("Password reset link has been sent to "+maskEmail(em)+".\n\nOpen Gmail (also check your Spam folder), set a new password from the link, then login.");
+  }catch(e){ b.disabled=false; b.textContent=t; await alertBox(authMsg(e)); }
+  return;
+ }
+ if(!user) return alertBox("No account found. Please register first!");
+ const email=$("fpEmail").value.trim().toLowerCase();
+ if(!email) return alertBox("Please enter your Gmail");
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return alertBox("Enter a valid Gmail address");
+ if(email!==user.email) return alertBox("This Gmail is not registered");
+ const wait=Math.ceil((60000-(Date.now()-fp.lastSent))/1000);
+ if(fp.lastSent && wait>0) return alertBox("Please wait "+wait+" seconds before requesting another OTP.");
+ const otp=genOtp();
+ $("fpSend").disabled=true; $("fpResend").disabled=true; $("fpSend").textContent="SENDING...";
+ let sent=false, why="";
+ if(!emailConfigured()) sent=true; /* test mode: OTP is shown on screen */
+ else{
+  try{
+   if(!(await ensureEmailJS())) throw new Error("Could not load the email library. Please check your internet connection.");
+   await sendOtpEmail(user.email,user.name,otp); sent=true;
+  }catch(err){ why=(err&&(err.text||err.message))||String(err||""); if(err&&err.status) why=err.status+": "+why; }
+ }
+ $("fpSend").disabled=false; $("fpSend").textContent="SEND OTP";
+ if(!sent){ if(fp.lastSent) fpCountdown(); return alertBox("OTP email could not be sent.\n\nReason: "+why+"\n\nCheck your internet connection and the EmailJS Service ID, Template ID and Public Key."); }
+ fp.otp=otp; fp.expires=Date.now()+10*60000; fp.tries=0; fp.lastSent=Date.now();
+ $("fpEmail").disabled=true; $("fpOtp").value="";
+ $("fpInfo").innerHTML=emailConfigured()
+  ? `<div class="muted" style="text-align:left">📧 OTP sent to <b>${esc(maskEmail(user.email))}</b>. Check your inbox (and Spam folder). It is valid for 10 minutes.</div>`
+  : `<div class="warn-box">⚠️ TEST MODE: the email service is not set up yet, so your OTP is shown here instead of Gmail:<br><b id="fpTestOtp" style="font-size:22px;letter-spacing:4px">${otp}</b></div>`;
+ fpStep(2); fpCountdown(); setTimeout(()=>$("fpOtp").focus(),50);
+}
+async function fpVerify(){
+ const v=$("fpOtp").value.trim();
+ if(!fp.otp) return alertBox("Please request an OTP first.");
+ if(!/^\d{6}$/.test(v)) return alertBox("Enter the 6-digit OTP");
+ if(Date.now()>fp.expires){ fp.otp=null; return alertBox("OTP expired. Please tap RESEND OTP."); }
+ if(v!==fp.otp){
+  fp.tries++;
+  if(fp.tries>=3){ fp.otp=null; return alertBox("Too many wrong attempts. Please tap RESEND OTP to get a new one."); }
+  return alertBox("Wrong OTP! "+(3-fp.tries)+" attempt"+(3-fp.tries>1?"s":"")+" left.");
+ }
+ fp.verified=true; fp.otp=null; clearInterval(fp.timer); $("fpInfo").innerHTML="";
+ await alertBox("OTP verified successfully!");
+ fpStep(3); setTimeout(()=>$("fpNew").focus(),50);
+}
+async function fpChange(){
+ if(!fp.verified) return alertBox("Please verify the OTP first.");
+ const a=$("fpNew").value, b=$("fpNew2").value;
+ if(!a||!b) return alertBox("Please fill all fields");
+ if(a.length<6) return alertBox("Password must be at least 6 characters");
+ if(a!==b) return alertBox("Passwords do not match");
+ if(a===user.password) return alertBox("New password must be different from the old password");
+ user.password=a; saveData();
+ const email=user.email; fpReset(); showPage("loginPage");
+ $("loginEmail").value=email; $("loginPassword").value="";
+ await alertBox("Password changed successfully! Please login with your new password.");
+}
+$("fpSend").onclick=fpSend; $("fpResend").onclick=fpSend; $("fpVerify").onclick=fpVerify; $("fpChange").onclick=fpChange;
+$("fpBack").onclick=()=>{ fpReset(); showPage("loginPage"); };
+$("fpShow").onchange=()=>{ const t=$("fpShow").checked?"text":"password"; $("fpNew").type=t; $("fpNew2").type=t; };
+function fpStrength(){
+ const v=$("fpNew").value; let sc=0;
+ if(v.length>=6) sc++; if(v.length>=10) sc++; if(/[a-z]/.test(v)&&/[A-Z]/.test(v)) sc++; if(/\d/.test(v)) sc++; if(/[^A-Za-z0-9]/.test(v)) sc++;
+ const lv=!v?0:sc<=2?1:sc<=3?2:3, col=["#e5e7eb","#dc2626","#f59e0b","#16a34a"][lv], tx=["","Weak","Medium","Strong"][lv];
+ $("fpStrFill").style.width=[0,33,66,100][lv]+"%"; $("fpStrFill").style.background=col;
+ $("fpStrTxt").innerHTML=v?`<span style="color:${col}">Password strength: <b>${tx}</b></span>`+(v.length<6?' <span style="color:#dc2626">(min 6 characters)</span>':""):"";
+ fpMatch();
+}
+function fpMatch(){
+ const a=$("fpNew").value,b=$("fpNew2").value, m=$("fpMatch");
+ m.innerHTML=!b?"":a===b?'<span style="color:#16a34a">✓ Passwords match</span>':'<span style="color:#dc2626">✗ Passwords do not match</span>';
+}
+$("fpNew").oninput=fpStrength; $("fpNew2").oninput=fpMatch;
+$("fpOtp").oninput=()=>{ $("fpOtp").value=$("fpOtp").value.replace(/\D/g,"").slice(0,6); };
+$("fpWrongMail").onclick=()=>{ const e=$("fpEmail").value; fpReset(); $("fpEmail").value=e; $("fpEmail").focus(); };
+$("fpEmail").onkeydown=e=>{ if(e.key==="Enter") fpSend(); };
+$("fpOtp").onkeydown=e=>{ if(e.key==="Enter") fpVerify(); };
+$("fpNew2").onkeydown=e=>{ if(e.key==="Enter") fpChange(); };
+function updateDashName(){ const d=currentDash(); $("dashName").textContent=(user?.name||"")+(d?" • "+d.name:""); }
+function notifyAlerts(){
+ if(!settings.notify || typeof Notification==="undefined" || Notification.permission!=="granted") return;
+ const n=products.filter(isAlert).length; if(!n) return;
+ try{ new Notification(APP_INFO.name,{body:n+" product"+(n>1?"s are":" is")+" expired or expiring soon in "+currentDash().name}); }catch(e){}
+}
+function dashboard(){ updateDashName(); updateAvatar(); showPage("dashboardPage"); $("dashboardPage").classList.add("open"); updateBadge(); notifyAlerts(); }
+async function logout(){ stopScanner(); if(cdbOn) await cdbPush(); await cloudSignOut(); showPage("loginPage"); $("loginPassword").value=""; }
+function updateBadge(){ const count=products.filter(isAlert).length; $("alertBadge").innerHTML = count ? `<span class="badge">${count}</span>` : ""; }
+
+/* ---------- Categories ---------- */
+/* One master list used everywhere: defaults + user-added + any category already on a product */
+function allCategoryNames(){
+ const seen=new Set(), out=[];
+ [...DEFAULT_CATEGORIES,...customCategories,...products.map(p=>p.category)].forEach(c=>{
+  c=String(c||"").trim(); if(!c) return;
+  const k=c.toLowerCase(); if(seen.has(k)) return; seen.add(k); out.push(c);
+ });
+ return out;
+}
+function categoriesIn(list=products){ return allCategoryNames().filter(c=>list.some(p=>p.category===c)); }
+function categoriesAll(list=products){ return allCategoryNames(); }
+function categorySelectHTML(id,selected=""){
+ const names=allCategoryNames();
+ return `<select id="${id}"><option value=""${selected?"":" selected"}>— Select category (Optional) —</option>${names.map(c=>`<option value="${esc(c)}"${c===selected?" selected":""}>${esc(c)}</option>`).join("")}</select>`;
+}
+async function addNewCategory(){
+ const raw=await promptBox("Enter new category name:","text");
+ if(raw===null) return null;
+ const name=raw.trim().replace(/\s+/g," ");
+ if(!name){ await alertBox("Category name cannot be empty"); return null; }
+ if(name.length>40){ await alertBox("Category name is too long (max 40 characters)"); return null; }
+ const existing=allCategoryNames().find(c=>c.toLowerCase()===name.toLowerCase());
+ if(existing) return existing;
+ customCategories.push(name); saveData();
+ return name;
+}
+function categoryCount(cat,list=products){ return list.filter(p=>p.category===cat).length; }
+function categoryListHTML(list,heading,emptyText,onSelectName,extra){
+ const c=$("content"); c.innerHTML=`<h3>${heading}</h3><p class="muted">Select an item/category to open its products.</p>`;
+ if(!list.length) c.innerHTML+=`<div class="empty">${emptyText}</div>`;
+ categoriesAll(list).forEach(cat=>{
+  const count=categoryCount(cat,list), btn=document.createElement("button");
+  btn.type="button"; btn.className="category-btn";
+  btn.innerHTML=`📦 ${esc(cat)} <span style="float:right">${count} Items →</span>${extra&&count?`<br><small style="font-weight:normal;color:#4b5563">${extra(list.filter(p=>p.category===cat))}</small>`:""}`;
+  btn.onclick=()=>onSelectName(cat); c.appendChild(btn);
+ });
+}
+function showSection(section){
+ stopScanner(); closeCamera();
+ const c=$("content");
+ if(section==="add"){ lastRender=()=>showSection("add"); renderAddForm(); return; }
+ if(section==="products"){ showProductCategories(); return; }
+ if(section==="alerts"){ showAlertCategories(); return; }
+ if(section==="safe"){ showSafeCategories(); return; }
+ if(section==="search"){ showSearchCategories(); return; }
+ if(section==="filter"){ showFilter(); return; }
+ if(section==="categories"){ showCategories(); return; }
+ if(section==="stats"){ showStats(); return; }
+ if(section==="waste"){ showWaste(); return; }
+ if(section==="profile"){ showProfile(); return; }
+ if(section==="dashboards"){ showDashboards(); return; }
+ if(section==="settings"){ showSettings(); return; }
+ if(section==="photo"){ showProfilePhoto(); return; }
+ if(section==="help"){ lastRender=()=>showSection("help"); c.innerHTML=`<h3>Help &amp; Support</h3><div class="product"><b>Add Product</b><br>Enter product, category (optional – choose from existing; new categories are added in Product Categories), quantity, purchase date and expiry date.</div><div class="product"><b>My Products</b><br>Select category to see products grouped by month added. Use EDIT to change a product.</div><div class="product"><b>Expiry Alert</b><br>Select category to see expired and expiring products with a % Risk line (opposite of % Safe). Most risky products are listed first. See the overall Expiry % in Product Statistics.</div><div class="product"><b>Safe Products</b><br>Select category to see only safe products with a % Safe line (remaining shelf life out of total). Safest products are listed first. See the overall Safe % in Product Statistics.</div><div class="product"><b>Search</b><br>Select a category or All Products, then type a name or barcode.</div><div class="product"><b>Menu &amp; Settings</b><br>All options are in the menu. Logout is below Settings. Settings has Dark Mode, Notifications, Default Alert Days, Change Password, Software Update, Privacy Policy and About.</div><div class="product"><b>Profile Photo</b><br>Tap your photo (or ✏️) to take a new photo with the camera or choose one from the gallery.</div><div class="product"><b>Forgot Password</b><br>Tap "Forgot Password?" on the login page, enter your registered Gmail, type the OTP you receive, then set a new password.</div><div class="product"><b>Data storage</b><br>This version stores data in this browser on this device.</div>`; return; }
+}
+
+/* ---------- My Profile + Multiple Dashboards ---------- */
+function cleanMobile(v){ return String(v||"").replace(/[\s-]/g,"").replace(/^(\+91|91|0)(?=\d{10}$)/,""); }
+function profileCardHTML(login){
+ return `<div class="prof-card"><div class="prof-pic">${avatarHTML()}</div><div class="prof-info"><b class="nm">${esc(user.name)}</b><b>${login?"Login Gmail":"Email"}:</b> ${esc(user.email)}<br><b>${login?"Login Mobile":"Mobile"}:</b> ${esc(user.mobile)}<br><b>Account:</b> Active</div></div>`;
+}
+/* Header "My Profile": read-only */
+function showProfile(){
+ lastRender=showProfile;
+ $("content").innerHTML=`<h3>👤 My Profile</h3>${profileCardHTML(false)}`;
+}
+/* ===== Settings -> My Profile =====
+   1) full details first, 2) then a plain text list: Change Profile Picture / User Name / Gmail / Mobile Number,
+   3) each option opens its own screen (Gmail and Mobile have verification steps). */
+function addBack(label,fn){ const b=document.createElement("button"); b.type="button"; b.className="back-btn"; b.style.marginTop="16px"; b.textContent=label; b.onclick=fn; $("content").appendChild(b); }
+function refreshNameEverywhere(){
+ updateDashName();
+ if($("profileName")) $("profileName").textContent=user.name;
+ if($("pName")) $("pName").textContent=user.name;
+}
+
+/* --- Screen 1: details + text options --- */
+function showAccountSettings(){
+ lastRender=showAccountSettings;
+ const c=$("content");
+ c.innerHTML=`<h3>👤 My Profile</h3>
+ ${profileCardHTML(true)}
+ <div class="set-list" id="accList"></div>`;
+ const list=$("accList");
+ [["📷","Change Profile Picture",showPhotoChange],["✏️","Change User Name",showNameChange],["📧","Change Gmail",showGmailChange],["📱","Change Mobile Number",showMobileChange]].forEach(([ic,t,fn])=>{
+  const r=document.createElement("button"); r.type="button"; r.className="set-row";
+  r.innerHTML=`<span class="set-ic">${ic}</span><span class="set-tx"><b>${t}</b></span><span class="set-arrow">›</span>`;
+  r.onclick=fn; list.appendChild(r);
+ });
+ addBackToSettings();
+}
+
+/* --- Change Profile Picture --- */
+function showPhotoChange(){
+ lastRender=showPhotoChange;
+ const c=$("content");
+ c.innerHTML=`<h3>📷 Change Profile Picture</h3>
+ <div class="big-photo" id="setPhoto">${avatarHTML()}</div><p class="muted" style="text-align:center">${esc(user.name)}</p>
+ <button type="button" class="action" id="setCam">📷 TAKE PHOTO</button>
+ <button type="button" class="action" id="setGal" style="background:#2563eb">🖼️ CHOOSE FROM GALLERY</button>`;
+ $("setCam").onclick=openCamera;
+ $("setGal").onclick=()=>$("avatarFile").click();
+ addBack("← BACK TO MY PROFILE",showAccountSettings);
+}
+
+/* --- Change User Name --- */
+function showNameChange(){
+ lastRender=showNameChange;
+ const c=$("content");
+ c.innerHTML=`<h3>✏️ Change User Name</h3>
+ <div class="product"><b>Current name:</b> ${esc(user.name)}</div>
+ <label>New Name</label>
+ <input id="newName" placeholder="Enter new name" maxlength="40" autocomplete="name">
+ <button type="button" class="action" id="saveName">SAVE NAME</button>`;
+ $("saveName").onclick=async()=>{
+  const n=$("newName").value.trim().replace(/\s+/g," ");
+  if(!n) return alertBox("Please enter the new name");
+  if(n.length<2) return alertBox("Name must be at least 2 characters");
+  if(!/\p{L}/u.test(n)) return alertBox("Name must contain letters");
+  if(n===user.name) return alertBox("This is already your current name");
+  user.name=n; saveData(); refreshNameEverywhere();
+  await alertBox("User name changed successfully!");
+  showAccountSettings();
+ };
+ $("newName").onkeydown=e=>{ if(e.key==="Enter") $("saveName").click(); };
+ addBack("← BACK TO MY PROFILE",showAccountSettings);
+}
+
+/* --- Change Gmail: confirm with current password (email OTP is used only for Forgot Password) --- */
+function showGmailChange(){
+ lastRender=showGmailChange;
+ const c=$("content");
+ c.innerHTML=`<h3>📧 Change Gmail</h3>
+ <div class="product"><b>Current login Gmail:</b> ${esc(user.email)}</div>
+ <p class="muted">Enter the new Gmail and your current password. Use a Gmail you can open, because the Forgot Password OTP is sent to it.</p>
+ <label>New Gmail</label>
+ <input id="mailNew" type="email" placeholder="Enter new Gmail (example@gmail.com)" autocomplete="email" inputmode="email">
+ <label>Current Password</label>
+ <input id="mailPass" type="password" placeholder="Enter current password" autocomplete="current-password">
+ <button type="button" class="action" id="mailSave">SAVE GMAIL</button>`;
+ $("mailSave").onclick=async()=>{
+  const mail=$("mailNew").value.trim().toLowerCase(), pw=$("mailPass").value;
+  if(!mail||!pw) return alertBox("Please fill all fields");
+  if(mail===user.email) return alertBox("This is already your current Gmail");
+  if(pw!==user.password) return alertBox("Current password is incorrect");
+  const b=$("mailSave"), t=b.textContent; b.disabled=true; b.textContent="CHECKING GMAIL...";
+  const bad=await checkGmail(mail); b.disabled=false; b.textContent=t;
+  if(bad) return alertBox(bad);
+  if(fbAuth && fbAuth.currentUser){
+   try{
+    await fbAuth.currentUser.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(user.email,pw));
+    await fbAuth.currentUser.verifyBeforeUpdateEmail(mail);
+   }catch(e){ return alertBox(authMsg(e)); }
+   await alertBox("Verification link has been sent to "+mail+".\n\nClick the link to confirm, then login with the new Gmail.");
+   return;
+  }
+  const old=user.email; user.email=mail; saveData();
+  if($("loginEmail")&&$("loginEmail").value.trim().toLowerCase()===old) $("loginEmail").value=mail;
+  if($("pEmail")) $("pEmail").textContent=mail;
+  await alertBox("Gmail changed successfully!\n\nUse the new Gmail to login from now on.");
+  showAccountSettings();
+ };
+ addBack("← BACK TO MY PROFILE",showAccountSettings);
+}
+
+/* --- Change Mobile Number: no OTP, confirm with current password --- */
+function showMobileChange(){
+ lastRender=showMobileChange;
+ const c=$("content");
+ c.innerHTML=`<h3>📱 Change Mobile Number</h3>
+ <div class="product"><b>Current login mobile:</b> ${esc(user.mobile)}</div>
+ <label>New Mobile Number</label>
+ <input id="mobNew" type="tel" placeholder="Enter new 10-digit mobile number" inputmode="numeric" maxlength="15" autocomplete="tel">
+ <button type="button" class="action" id="mobSave">SAVE MOBILE NUMBER</button>`;
+ $("mobSave").onclick=async()=>{
+  const m=cleanMobile($("mobNew").value);
+  if(!m) return alertBox("Please enter the new mobile number");
+  if(!/^[6-9]\d{9}$/.test(m)) return alertBox("Enter a valid 10-digit mobile number");
+  if(m===cleanMobile(user.mobile)) return alertBox("This is already your current mobile number");
+  user.mobile=m; saveData();
+  if($("pMobile")) $("pMobile").textContent=m;
+  await alertBox("Mobile number changed successfully!");
+  showAccountSettings();
+ };
+ addBack("← BACK TO MY PROFILE",showAccountSettings);
+}
+function showDashboards(){
+ stopScanner();
+ lastRender=showDashboards;
+ const c=$("content");
+ c.innerHTML=`<h3>🏪 My Dashboard</h3><p class="muted">Click any dashboard logo to open all of its items.</p><div class="dash-grid" id="dashGrid"></div>`;
+ const grid=$("dashGrid");
+ dashboards.forEach((d,i)=>{
+  const isActive=d.id===activeDash, cell=document.createElement("div"); cell.className="dash-cell";
+  cell.innerHTML=`<button type="button" class="dash-tile${isActive?" active":""}"><span class="dl">🏪</span><b>${i+1}. ${esc(d.name)}</b><small>${esc(d.address)||"Address not added"}</small>${isActive?'<span class="badge" style="background:#16a34a">Active</span>':""}</button><div class="dash-mini"><button type="button" class="waste-btn" data-act="addr">ADDRESS</button><button type="button" class="small" style="margin:0" data-act="del">DELETE</button></div>`;
+  cell.querySelector(".dash-tile").onclick=()=>{ switchDashboard(d.id); showProductCategories(); };
+  cell.querySelector('[data-act="addr"]').onclick=async()=>{ const v=await promptBox("Enter shop address:","text"); if(v===null) return; d.address=v.trim().slice(0,150); saveData(); showDashboards(); };
+  const x=cell.querySelector('[data-act="del"]'); if(x) x.onclick=()=>deleteDashboard(d.id);
+  grid.appendChild(cell);
+ });
+ const add=document.createElement("div"); add.className="dash-cell";
+ add.innerHTML=`<button type="button" class="dash-tile add"><span class="dl">➕</span><b>Add New Dashboard</b></button>`;
+ add.querySelector("button").onclick=showAddDashboard;
+ grid.appendChild(add);
+}
+function showAddDashboard(){
+ stopScanner();
+ lastRender=showAddDashboard;
+ const c=$("content");
+ c.innerHTML=`<h3>➕ Add New Dashboard</h3><p class="muted">Create a new dashboard (shop). It will have separate product data; all other features stay the same.</p><button type="button" class="back-btn" id="newDashBack">← CANCEL</button>
+ <label>Shop / Dashboard Name</label><input id="newDashName" placeholder="e.g. Sharma Medical Store" maxlength="40">
+ <label>Mobile Number</label><input id="newDashMobile" type="tel" placeholder="Mobile Number">
+ <label>Address / Location (Optional)</label><input id="newDashAddress" placeholder="Shop Address">
+ <button type="button" class="action" id="newDashCreate">CREATE DASHBOARD</button>`;
+ $("newDashBack").onclick=showDashboards;
+ $("newDashCreate").onclick=createDashboard;
+}
+async function createDashboard(){
+ const name=$("newDashName").value.trim().replace(/\s+/g," "), mobile=$("newDashMobile").value.trim(), address=$("newDashAddress").value.trim();
+ if(!name||!mobile) return alertBox("Please fill all required fields");
+ if(name.length>40) return alertBox("Dashboard name is too long (max 40 characters)");
+ if(dashboards.some(d=>d.name.toLowerCase()===name.toLowerCase())) return alertBox("A dashboard with this name already exists. Please enter a different name.");
+ saveData();
+ const d={id:"d"+Date.now()+Math.floor(Math.random()*1000),name,mobile,address,createdAt:new Date().toISOString()};
+ dashboards.push(d);
+ switchDashboard(d.id,true);
+ await alertBox('Dashboard "'+name+'" created successfully!');
+}
+function switchDashboard(id,silent){
+ if(!dashboards.some(d=>d.id===id)) return;
+ stopScanner(); saveData();
+ activeDash=id; searchCategory="All";
+ loadDashData(); saveData(); updateDashName();
+ lastRender=()=>showSection("products"); window.scrollTo(0,0);
+ $("content").innerHTML=`<h3>Welcome to Dashboard</h3><p>Select any feature to manage your products.</p>`;
+}
+async function deleteDashboard(id){
+ const d=dashboards.find(x=>x.id===id); if(!d) return;
+ if(dashboards.length<=1) return alertBox("At least one dashboard must remain. Add a new dashboard before deleting this one.");
+ if(!(await confirmBox('Delete dashboard "'+d.name+'" and all its products? This cannot be undone.'))) return;
+ dashboards=dashboards.filter(x=>x.id!==id);
+ [KEYS.products,KEYS.waste,KEYS.cats].forEach(k=>{ const key=dkey(k,id); delete mem[key]; try{ localStorage.removeItem(key); }catch(e){} });
+ if(activeDash===id){ activeDash=dashboards[0].id; loadDashData(); updateDashName(); $("content").innerHTML=`<h3>Welcome to Dashboard</h3><p>Select any feature to manage your products.</p>`; lastRender=()=>showSection("products"); }
+ saveData();  showDashboards();
+}
+
+/* ---------- Images ---------- */
+function isImg(v){ return typeof v==="string" && v.startsWith("data:image/"); }
+function compressImage(file,max){
+ return new Promise((resolve,reject)=>{
+  const r=new FileReader();
+  r.onerror=reject;
+  r.onload=()=>{
+   const img=new Image();
+   img.onerror=reject;
+   img.onload=()=>{
+    const sc=Math.min(1,max/Math.max(img.width,img.height)), cv=document.createElement("canvas");
+    cv.width=Math.max(1,Math.round(img.width*sc)); cv.height=Math.max(1,Math.round(img.height*sc));
+    cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height);
+    resolve(cv.toDataURL("image/jpeg",0.7));
+   };
+   img.src=r.result;
+  };
+  r.readAsDataURL(file);
+ });
+}
+function avatarHTML(){ return isImg(user&&user.photo)?`<img src="${esc(user.photo)}" alt="Profile">`:"👤"; }
+function updateAvatar(){ const a=$("photoBtn"); if(a) a.innerHTML=avatarHTML(); const b=$("profilePhotoBig"); if(b) b.innerHTML=avatarHTML(); const c=$("setPhoto"); if(c) c.innerHTML=avatarHTML(); }
+function showProfilePhoto(){
+ lastRender=showProfilePhoto;
+ const c=$("content");
+ c.innerHTML=`<h3>Profile Photo</h3><div class="big-wrap avatar-wrap"><div class="big-photo">${avatarHTML()}</div></div><p class="muted" style="text-align:center">${esc(user?.name||"User")}</p>
+ <button type="button" class="action" id="photoCamBtn">📷 TAKE PHOTO</button>
+ <button type="button" class="action" id="photoGalBtn" style="background:#2563eb">🖼️ CHOOSE FROM GALLERY</button>
+`;
+ $("photoCamBtn").onclick=openCamera;
+ $("photoGalBtn").onclick=()=>$("avatarFile").click();
+}
+$("photoEditBtn").onclick=e=>{ e.stopPropagation(); showSection("photo"); };
+/* ---------- Live camera for profile photo ---------- */
+let camStream=null, camFacing="user";
+async function openCamera(){
+ if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){ $("avatarCamera").click(); return; }
+ try{ await startCam(); $("camModal").style.display="flex"; }
+ catch(e){ closeCamera(); const ok=await confirmBox("Camera could not be opened ("+((e&&e.name)||"error")+").\nAllow camera permission in the browser, or use your phone's camera app instead?"); if(ok) $("avatarCamera").click(); }
+}
+async function startCam(){
+ stopCam();
+ camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:camFacing,width:{ideal:720},height:{ideal:720}},audio:false});
+ const v=$("camVideo"); v.srcObject=camStream; v.classList.toggle("back",camFacing!=="user"); await v.play().catch(()=>{});
+}
+function stopCam(){ if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; } const v=$("camVideo"); if(v) v.srcObject=null; }
+function closeCamera(){ stopCam(); $("camModal").style.display="none"; }
+$("camCancel").onclick=closeCamera;
+$("camSwitch").onclick=async()=>{ camFacing=camFacing==="user"?"environment":"user"; try{ await startCam(); }catch(e){ camFacing=camFacing==="user"?"environment":"user"; try{ await startCam(); }catch(_){} await alertBox("Could not switch the camera."); } };
+$("camShot").onclick=async()=>{
+ const v=$("camVideo"); if(!v.videoWidth) return alertBox("Camera is not ready yet. Please wait a moment.");
+ const side=Math.min(v.videoWidth,v.videoHeight), sx=(v.videoWidth-side)/2, sy=(v.videoHeight-side)/2, out=300, cv=$("camCanvas");
+ cv.width=out; cv.height=out; const ctx=cv.getContext("2d");
+ if(camFacing==="user"){ ctx.translate(out,0); ctx.scale(-1,1); }
+ ctx.drawImage(v,sx,sy,side,side,0,0,out,out);
+ user.photo=cv.toDataURL("image/jpeg",0.8); saveData(); closeCamera(); updateAvatar();
+ if(lastRender===showProfilePhoto) showProfilePhoto();
+ await alertBox("Profile photo updated!");
+};
+async function handleAvatarFile(e){
+ const f=e.target.files&&e.target.files[0]; e.target.value=""; if(!f||!user) return;
+ if(!f.type.startsWith("image/")) return alertBox("Please select an image file");
+ try{ user.photo=await compressImage(f,300); saveData(); updateAvatar(); if(lastRender===showProfilePhoto) showProfilePhoto(); await alertBox("Profile photo updated!"); }
+ catch(err){ alertBox("Could not read this image. Try another one."); }
+}
+$("avatarFile").onchange=handleAvatarFile;
+$("avatarCamera").onchange=handleAvatarFile;
+
+/* ---------- Add product ---------- */
+function renderAddForm(){
+ const c=$("content"); c.innerHTML=`
+ <h3>Add Product</h3>
+ <label>Product Name</label><input id="prodName" placeholder="Product Name">
+ <label>Category / Item (Optional)</label>${categorySelectHTML("prodCategory")}
+ <label>Quantity</label><input id="prodQty" type="number" min="1" placeholder="Quantity">
+ <label>Barcode Number</label><input id="prodBarcode" placeholder="Barcode Number (Optional)">
+ <button type="button" class="scan-btn" id="scanBtn">📷 SCAN BARCODE (MOBILE CAMERA)</button><div id="scanner"></div>
+ <button type="button" class="scan-btn" id="photoScanBtn" style="background:#7c3aed">📸 SCAN FROM PHOTO (if camera does not work)</button><input type="file" id="barcodePhoto" accept="image/*" capture="environment" style="display:none">
+ <button type="button" class="scan-btn" id="fillBtn" style="background:#0d9488">🔎 AUTO-FILL FROM BARCODE NUMBER</button><div id="scanMsg"></div>
+ <label>Purchase Date</label><input id="purchaseDate" type="date">
+ <label>Expiry Date</label><input id="expiryDate" type="date">
+ <div class="muted">Quick expiry (the date printed on the pack is the correct one):</div><div class="row-actions" id="expChips"></div>
+ <label>Alert Before Expiry</label><select id="prodAlertDays"><option value="1">1 Day</option><option value="3">3 Days</option><option value="5">5 Days</option><option value="7" selected>7 Days</option><option value="15">15 Days</option><option value="30">30 Days</option><option value="custom">Custom Days</option></select>
+ <input id="customAlertDays" type="number" min="1" placeholder="Custom Days" style="display:none">
+ <button type="button" class="action" id="addProductBtn">ADD PRODUCT</button>`;
+ $("prodAlertDays").value=String(settings.defaultAlert);
+ $("prodAlertDays").onchange=()=>{ $("customAlertDays").style.display=$("prodAlertDays").value==="custom"?"block":"none"; };
+ $("addProductBtn").onclick=addProduct; $("scanBtn").onclick=startScanner;
+ $("photoScanBtn").onclick=()=>$("barcodePhoto").click(); $("barcodePhoto").onchange=scanFromPhoto;
+ [["+7 din",7],["+1 mahina",30],["+3 mahine",90],["+6 mahine",180],["+1 saal",365]].forEach(([t,n])=>{ const b=document.createElement("button"); b.type="button"; b.className="restore-btn"; b.textContent=t; b.onclick=()=>{ const base=$("purchaseDate").value||todayISO(); if(!$("purchaseDate").value) $("purchaseDate").value=base; $("expiryDate").value=addDaysISO(base,n); delete $("expiryDate").dataset.auto; }; $("expChips").appendChild(b); });
+ ["prodName","prodQty","expiryDate"].forEach(id=>$(id).addEventListener("input",()=>{ delete $(id).dataset.auto; }));
+ ["prodCategory","expiryDate"].forEach(id=>$(id).addEventListener("change",()=>{ delete $(id).dataset.auto; }));
+ $("fillBtn").onclick=()=>{ const c=$("prodBarcode").value.trim(); if(!c) return alertBox("Enter or scan a barcode number first"); autoFillFromBarcode(c,true); };
+}
+async function addProduct(){
+ const name=$("prodName").value.trim(), category=$("prodCategory").value.trim()||NO_CATEGORY, qty=$("prodQty").value,
+       barcode=$("prodBarcode").value.trim(), purchase=$("purchaseDate").value, expiry=$("expiryDate").value;
+ const alertDays=$("prodAlertDays").value==="custom"?Number($("customAlertDays").value):Number($("prodAlertDays").value);
+ if(!name||!qty||!purchase||!expiry) return alertBox("Please fill all required fields");
+ if(Number(qty)<=0) return alertBox("Quantity must be greater than zero");
+ if(!Number.isFinite(alertDays)||alertDays<1) return alertBox("Enter valid alert days");
+ if(expiry<purchase) return alertBox("Expiry date cannot be before purchase date");
+ const p={id:Date.now()+Math.floor(Math.random()*1000),name,category,qty:Number(qty),barcode,purchase,expiry,alertDays,addedAt:new Date().toISOString()};
+ products.push(p); saveData(); stopScanner();
+ showProductCategories();
+ await alertBox("Product added successfully!");
+}
+
+/* ---------- Barcode scanner (mobile camera) + auto-fill ---------- */
+function ensureScannerLib(){
+ if(typeof Html5Qrcode!=="undefined") return Promise.resolve(true);
+ return new Promise(res=>{ const sc=document.createElement("script"); sc.src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"; sc.onload=()=>res(typeof Html5Qrcode!=="undefined"); sc.onerror=()=>res(false); document.head.appendChild(sc); });
+}
+function scanCfg(){
+ const cfg={verbose:false,experimentalFeatures:{useBarCodeDetectorIfSupported:true}};
+ if(typeof Html5QrcodeSupportedFormats!=="undefined"){ const F=Html5QrcodeSupportedFormats; cfg.formatsToSupport=[F.EAN_13,F.EAN_8,F.UPC_A,F.UPC_E,F.CODE_128,F.CODE_39,F.ITF,F.QR_CODE]; }
+ return cfg;
+}
+function scanBox(w,h){ return {width:Math.max(200,Math.min(w-20,360)),height:Math.max(110,Math.min(Math.round(h*0.55),180))}; }
+async function handleScannedCode(text){
+ if(!$("prodBarcode")) return;
+ $("prodBarcode").value=text;
+ if(settings.autoFill) await autoFillFromBarcode(text,false);
+ else $("scanMsg").innerHTML=`<div class="ok-box">✅ Barcode scanned: ${esc(text)}</div>`;
+}
+function onScanOK(text){
+ if(!scanner) return;
+ text=String(text||"").trim(); if(!text) return;
+ try{ if(navigator.vibrate) navigator.vibrate(80); }catch(e){}
+ stopScanner();
+ handleScannedCode(text);
+}
+let scanBusy=false;
+async function startScanner(){
+ if(scanner||scanBusy) return;
+ scanBusy=true;
+ try{
+  if(!(await ensureScannerLib())){ await alertBox("Scanner library failed to load. Please check your internet, or use the 'SCAN FROM PHOTO' button below."); return; }
+  if(!$("scanner")) return;
+  $("scanMsg").innerHTML=`<div class="muted">📷 Opening camera...</div>`;
+  /* Try better quality first; if that fails, use the old simple setting, then the back camera ID directly */
+  const attempts=[
+   ()=>[{facingMode:"environment"},{fps:15,qrbox:scanBox,disableFlip:true,videoConstraints:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}}}],
+   ()=>[{facingMode:"environment"},{fps:10,qrbox:scanBox}],
+   async()=>{ const cams=await Html5Qrcode.getCameras(); if(!cams||!cams.length) throw new Error("No camera found"); const back=cams.find(c=>/back|rear|environment/i.test(c.label||""))||cams[cams.length-1]; return [back.id,{fps:10,qrbox:scanBox}]; }
+  ];
+  let lastErr=null;
+  for(const make of attempts){
+   let s=null;
+   try{
+    const [cam,opts]=await make();
+    s=new Html5Qrcode("scanner",scanCfg()); scanner=s;
+    await s.start(cam,opts,onScanOK,()=>{});
+    try{ await s.applyVideoConstraints({advanced:[{focusMode:"continuous"}]}); }catch(e){}
+    $("scanMsg").innerHTML=`<div class="muted">📷 Keep the barcode inside the frame, hold the camera straight and steady, and make sure there is good light.</div>`;
+    return;
+   }catch(e){
+    lastErr=e; scanner=null;
+    try{ if(s) await s.clear(); }catch(_){}
+    if($("scanner")) $("scanner").innerHTML="";
+    if(/Permission|NotAllowed|denied/i.test(String(e&&e.name)+" "+String((e&&e.message)||e))) break;
+   }
+  }
+  if($("scanMsg")) $("scanMsg").innerHTML="";
+  await alertBox("Could not open the camera.\n\n1) Allow Camera permission in the browser.\n2) For the live scanner, the page must be opened via an HTTPS link (or in Chrome).\n3) Or use the 'SCAN FROM PHOTO' button below to take a photo of the barcode; this works on every phone.");
+ } finally { scanBusy=false; }
+}
+function stopScanner(){
+ if(!scanner) return;
+ const s=scanner; scanner=null;
+ s.stop().then(()=>{ if($("scanner")) $("scanner").innerHTML=""; }).catch(()=>{ if($("scanner")) $("scanner").innerHTML=""; });
+}
+/* Scan from a barcode photo (works even if the live camera does not) */
+async function scanFromPhoto(e){
+ const f=e.target.files&&e.target.files[0]; e.target.value=""; if(!f) return;
+ if(!$("scanMsg")) return;
+ $("scanMsg").innerHTML=`<div class="muted">🔎 Reading barcode from photo...</div>`;
+ let text="";
+ try{
+  if("BarcodeDetector" in window){
+   const bmp=await createImageBitmap(f), r=await new BarcodeDetector().detect(bmp);
+   if(r&&r[0]&&r[0].rawValue) text=String(r[0].rawValue).trim();
+  }
+ }catch(err){}
+ if(!text){
+  try{
+   if(await ensureScannerLib()){
+    const s=new Html5Qrcode("scanner",scanCfg());
+    try{ text=String(await s.scanFile(f,false)||"").trim(); }finally{ try{ s.clear(); }catch(_){} if($("scanner")) $("scanner").innerHTML=""; }
+   }
+  }catch(err){}
+ }
+ if(!text){ $("scanMsg").innerHTML=`<div class="warn-box">⚠️ No barcode found in the photo. Take a close, straight, clear photo of the barcode, or type the number yourself and press AUTO-FILL.</div>`; return; }
+ await handleScannedCode(text);
+}
+function todayISO(){ const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,10); }
+function addDaysISO(iso,days){ const d=new Date((iso||todayISO())+"T00:00:00"); d.setDate(d.getDate()+days); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,10); }
+function guessCategory(tags){
+ const t=(tags||[]).join(" ").toLowerCase();
+ if(/dair|milk|cheese|yogurt|yoghurt|butter|curd|paneer|cream/.test(t)) return "Dairy";
+ if(/fruit|vegetable|legume/.test(t)) return "Fruits & Vegetables";
+ if(/cosmetic|beauty|shampoo|soap|skin|hair/.test(t)) return "Cosmetics";
+ if(/clean|detergent|household/.test(t)) return "Household";
+ if(/medic|pharma|vitamin|supplement/.test(t)) return "Medicine";
+ if(/food|beverage|snack|biscuit|cereal|noodle|chocolate|drink|sauce|spice|rice|flour|oil|grocery|plant-based|meal|sweet|candy/.test(t)) return "Grocery";
+ return "";
+}
+/* Public product databases (free). All three are checked for food, beauty and household products. */
+const BARCODE_DBS=[
+ {host:"https://world.openfoodfacts.org",label:"Open Food Facts",cat:""},
+ {host:"https://world.openbeautyfacts.org",label:"Open Beauty Facts",cat:"Cosmetics"},
+ {host:"https://world.openproductsfacts.org",label:"Open Products Facts",cat:"Household"}
+];
+function isoFromParts(y,mo,d){
+ if(y<2000||y>2100||mo<1||mo>12||d<1||d>31) return "";
+ const dt=new Date(y,mo-1,d); if(dt.getMonth()!==mo-1) return "";
+ return y+"-"+String(mo).padStart(2,"0")+"-"+String(d).padStart(2,"0");
+}
+/* Converts the database expiry text into a date (only dates after today are accepted) */
+function parseExpiry(v){
+ const s=String(v||"").trim(); let m, out="";
+ if((m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))) out=isoFromParts(+m[1],+m[2],+m[3]);
+ else if((m=s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/))) out=isoFromParts(+m[3],+m[2],+m[1]);
+ else if((m=s.match(/^(\d{1,2})[\/.-](\d{4})$/))) out=isoFromParts(+m[2],+m[1],new Date(+m[2],+m[1],0).getDate());
+ else if((m=s.match(/^(\d{4})-(\d{1,2})$/))) out=isoFromParts(+m[1],+m[2],new Date(+m[1],+m[2],0).getDate());
+ return out && out>=todayISO() ? out : "";
+}
+async function fetchBarcodeDB(db,code){
+ const ctl=new AbortController(), t=setTimeout(()=>ctl.abort(),8000);
+ try{
+  const res=await fetch(db.host+"/api/v2/product/"+encodeURIComponent(code)+".json?fields=product_name,product_name_en,generic_name,brands,quantity,categories_tags,expiration_date",{signal:ctl.signal});
+  clearTimeout(t);
+  if(!res.ok) return res.status===404?null:"error";
+  const j=await res.json(), pr=j&&j.product;
+  let name=pr?String(pr.product_name||pr.product_name_en||pr.generic_name||"").trim():"";
+  if(!pr||!name) return null;
+  const brand=String(pr.brands||"").split(",")[0].trim();
+  if(brand&&!name.toLowerCase().includes(brand.toLowerCase())) name=brand+" "+name;
+  if(pr.quantity&&!name.includes(pr.quantity)) name+=" "+String(pr.quantity).trim();
+  return {src:"online",db:db.label,name:name.slice(0,80),category:guessCategory(pr.categories_tags)||db.cat,expiry:parseExpiry(pr.expiration_date)};
+ }catch(e){ clearTimeout(t); return "error"; }
+}
+async function lookupBarcode(code){
+ /* 1) products you already saved with this barcode (works offline) */
+ const mine=[...products,...waste].filter(p=>p.barcode===code).sort((a,b)=>String(b.addedAt||"").localeCompare(String(a.addedAt||"")))[0];
+ if(mine) return {src:"saved",name:mine.name,category:mine.category===NO_CATEGORY?"":mine.category,qty:mine.qty,alertDays:mine.alertDays};
+ /* 2) public databases */
+ if(!/^\d{6,14}$/.test(code)) return null;
+ let sawError=false;
+ for(const db of BARCODE_DBS){
+  const r=await fetchBarcodeDB(db,code);
+  if(r==="error") sawError=true;
+  else if(r) return r;
+ }
+ return sawError?"error":null;
+}
+function clearAutoFilled(){
+ ["prodName","prodQty","prodCategory","expiryDate"].forEach(id=>{ const el=$(id); if(el&&el.dataset.auto==="1"){ el.value=""; delete el.dataset.auto; } });
+}
+async function autoFillFromBarcode(code,manual){
+ const msg=$("scanMsg"); if(!msg||!$("prodName")) return;
+ msg.innerHTML=`<div class="muted">🔎 Looking up product details...</div>`;
+ clearAutoFilled();
+ const r=await lookupBarcode(code);
+ if(!$("prodName")) return;
+ const found=!!r&&r!=="error";
+ const filled=[], setIf=(id,v,label)=>{ const el=$(id); if(el&&v&&(!el.value||el.dataset.auto==="1")){ el.value=v; el.dataset.auto="1"; filled.push(label); } };
+ $("prodBarcode").value=code;
+ if(found){
+  setIf("prodName",r.name,"Name");
+  if(r.category&&[...$("prodCategory").options].some(o=>o.value===r.category)) setIf("prodCategory",r.category,"Category");
+  if(r.qty) setIf("prodQty",String(r.qty),"Quantity");
+  if(r.alertDays&&[...$("prodAlertDays").options].some(o=>o.value===String(r.alertDays))) $("prodAlertDays").value=String(r.alertDays);
+ }
+ setIf("prodQty","1","Quantity");
+ const pd=$("purchaseDate"); if(pd&&!pd.value){ pd.value=todayISO(); filled.push("Purchase date (today)"); }
+ let expNote;
+ if(found&&r.expiry){ setIf("expiryDate",r.expiry,"Expiry date"); expNote=`Expiry date found in database: <b>${esc(prettyDate(r.expiry))}</b>. Please match it with the date printed on the pack.`; }
+ else expNote=`<b>Expiry date</b> is not stored in the barcode (it differs for every batch), so please enter it from the pack. You can fill it quickly with the buttons below.`;
+ const where=found?(r.src==="saved"?"in your saved products":"in the product database ("+esc(r.db)+")"):"";
+ const head=found
+  ? `✅ Barcode <b>${esc(code)}</b> found ${where}.`
+  : r==="error" ? `⚠️ Barcode <b>${esc(code)}</b> saved, but could not connect to the product database (check your internet).`
+  : `⚠️ Barcode <b>${esc(code)}</b> saved. This product's name was not found in the database; please type the name yourself.`;
+ const catNote=found&&!$("prodCategory").value?"<br>Category not found, please select one.":"";
+ msg.innerHTML=`<div class="${found?"ok-box":"warn-box"}" style="font-weight:normal">${head}${filled.length?"<br>Auto-filled: "+esc(filled.join(", "))+".":""}${catNote}<br>${expNote}</div>`;
+ const next=!$("prodName").value?"prodName":!$("expiryDate").value?"expiryDate":null;
+ if(next){ const el=$(next); setTimeout(()=>{ try{ el.scrollIntoView({block:"center"}); el.focus(); }catch(e){} },150); }
+}
+
+/* ---------- Dates & status ---------- */
+function dateObj(s){ return s ? new Date(s+"T00:00:00") : null; }
+function remainingDays(p){
+ const today=new Date(); today.setHours(0,0,0,0);
+ const exp=dateObj(p.expiry);
+ if(!exp||Number.isNaN(exp.getTime())) return 999999;
+ return Math.round((exp-today)/86400000);
+}
+function getStatus(p){ const d=remainingDays(p); if(d<0) return "Expired"; if(d===0) return "Expires Today"; if(d<=Number(p.alertDays||7)) return "Expiring Soon"; return "Safe"; }
+function isAlert(p){ return remainingDays(p)<=Number(p.alertDays||7); }
+function countdownText(p){ const d=remainingDays(p); return d<0?`Expired ${Math.abs(d)} days ago`:d===0?"Expires Today":`${d} Days Remaining`; }
+/* % Safe = remaining shelf life / total shelf life (purchase -> expiry). % Risk = 100 - % Safe */
+function safePercent(p){
+ const exp=dateObj(p.expiry), pur=dateObj(p.purchase);
+ if(!exp||!pur||Number.isNaN(exp.getTime())||Number.isNaN(pur.getTime())) return 0;
+ const left=remainingDays(p), total=Math.round((exp-pur)/86400000);
+ if(left<=0) return 0;
+ if(total<=0) return 100;
+ return Math.max(0,Math.min(100,Math.round(left/total*100)));
+}
+function riskPercent(p){ return 100-safePercent(p); }
+function meterHTML(p,mode){
+ const pct=mode==="risk"?riskPercent(p):safePercent(p);
+ const color=mode==="risk"?(pct>=70?"#dc2626":pct>=40?"#f59e0b":"#16a34a"):(pct>=50?"#16a34a":pct>=25?"#f59e0b":"#dc2626");
+ return `<div class="pbar-wrap"><b style="color:${color}">${pct}% ${mode==="risk"?"Risk":"Safe"}</b><div class="pbar"><div class="pbar-fill" style="width:${pct}%;background:${color}"></div></div></div>`;
+}
+function averagePct(list,mode){ return list.length?Math.round(list.reduce((a,p)=>a+(mode==="risk"?riskPercent(p):safePercent(p)),0)/list.length):0; }
+function sortRowHTML(order){ return `<div class="sort-row"><button type="button" id="ordInc" class="${order==="asc"?"on":""}">⬆️ INCREASING</button><button type="button" id="ordDec" class="${order==="desc"?"on":""}">⬇️ DECREASING</button></div>`; }
+function prettyDate(value){
+ if(!value) return "Not recorded";
+ const d=new Date(value);
+ return Number.isNaN(d.getTime()) ? esc(value) : d.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});
+}
+function productHTML(p,showActions=true,meter=null){
+ const status=getStatus(p), color=status==="Expired"?"#dc2626":status==="Safe"?"#15803d":"#d97706";
+ return `<div class="product"><b style="font-size:15px">${esc(p.name)}</b><br>
+ Category: ${esc(p.category)}<br>Quantity: ${esc(p.qty)}<br>
+ Added Date: ${p.addedAt?prettyDate(p.addedAt):"Not recorded (old record)"}<br>
+ Purchase Date: ${prettyDate(p.purchase)}<br>Expiry Date: ${prettyDate(p.expiry)}<br>
+ Barcode: ${esc(p.barcode)||"Not added"}<br>Alert Before: ${esc(p.alertDays||7)} Days<br>
+ <div class="status" style="color:${color}">Status: ${status}</div><div style="margin-top:5px">${countdownText(p)}</div>${meter?meterHTML(p,meter):""}
+ ${showActions?`<div class="row-actions"><button type="button" class="edit-btn" onclick="editProduct(${Number(p.id)})">EDIT</button><button type="button" class="small" onclick="deleteProduct(${Number(p.id)})">DELETE</button><button type="button" class="waste-btn" onclick="markWaste(${Number(p.id)})">WASTE</button></div>`:""}</div>`;
+}
+
+/* ---------- Settings ---------- */
+function backBtnHTML(){ return ""; }
+function addBackToSettings(){ const b=document.createElement("button"); b.type="button"; b.className="back-btn"; b.style.marginTop="16px"; b.textContent="← BACK TO SETTINGS"; b.onclick=showSettings; $("content").appendChild(b); }
+function removeKey(key){ delete mem[key]; try{ localStorage.removeItem(key); }catch(e){} }
+function showSettings(){
+ lastRender=showSettings;
+ const c=$("content");
+ c.innerHTML=`<h3>⚙️ Settings</h3><div class="product" style="margin-top:0"><b style="font-size:15px">${esc(user.name)}</b><br>${esc(user.email)}<br>${esc(user.mobile)}</div><div class="set-list" id="setList"></div>`;
+ const list=$("setList");
+ const row=(icon,title,desc,tag="button")=>{ const r=document.createElement(tag); if(tag==="button") r.type="button"; r.className="set-row"; r.innerHTML=`<span class="set-ic">${icon}</span><span class="set-tx"><b>${title}</b><small>${desc}</small></span>`; list.appendChild(r); return r; };
+ const toggleRow=(icon,title,desc,key,onChange)=>{
+  const r=row(icon,title,desc,"div"), t=document.createElement("button"); t.type="button"; t.className="tgl"+(settings[key]?" on":""); t.setAttribute("role","switch"); t.setAttribute("aria-checked",settings[key]?"true":"false"); t.setAttribute("aria-label",title);
+  r.appendChild(t);
+  const flip=async()=>{ const v=!settings[key]; const ok=onChange?await onChange(v):true; if(ok===false) return; settings[key]=v; saveSettings(); t.classList.toggle("on",v); t.setAttribute("aria-checked",v?"true":"false"); };
+  t.onclick=e=>{ e.stopPropagation(); flip(); }; r.onclick=flip; r.style.cursor="pointer";
+ };
+ const navRow=(icon,title,desc,fn)=>{ const r=row(icon,title,desc); r.insertAdjacentHTML("beforeend",'<span class="set-arrow">›</span>'); r.onclick=fn; };
+
+ navRow("👤","My Profile","Details, photo, name, Gmail and mobile number",showAccountSettings);
+ toggleRow("🌙","Dark Mode","Use a dark theme for the whole app","dark",async v=>{ settings.dark=v; applyTheme(); return true; });
+ toggleRow("🔔","Notifications","Show a reminder when the app opens and products need attention","notify",async v=>{
+  if(!v) return true;
+  if(typeof Notification==="undefined"){ await alertBox("Notifications are not supported on this device or browser."); return false; }
+  let perm=Notification.permission;
+  if(perm==="default"){ try{ perm=await Notification.requestPermission(); }catch(e){ perm="denied"; } }
+  if(perm!=="granted"){ await alertBox("Notification permission was not allowed. Please allow it in your browser/app settings."); return false; }
+  return true;
+ });
+ toggleRow("📷","Auto-fill After Barcode Scan","Scan a barcode and the product name, category and dates are filled automatically","autoFill",async v=>true);
+ const d=row("⏱️","Default Alert Days","Used when you add a new product","div");
+ d.insertAdjacentHTML("beforeend",`<select class="set-sel" id="setAlertDays" aria-label="Default alert days">${[1,3,5,7,15,30].map(n=>`<option value="${n}"${Number(settings.defaultAlert)===n?" selected":""}>${n} Day${n>1?"s":""}</option>`).join("")}</select>`);
+ $("setAlertDays").onchange=()=>{ settings.defaultAlert=Number($("setAlertDays").value); saveSettings(); };
+ navRow("🔑","Change Password","Change the password of your account",showChangePassword);
+ navRow("🗑️","Delete All My Data","Delete your account and all data from this device",deleteAllData);
+ navRow("🔄","Software Update","Version "+APP_VERSION+" • check for updates",showUpdate);
+ navRow("🔒","Privacy Policy","How your data is stored and used",showPrivacy);
+ navRow("ℹ️","About","App information",showAbout);
+}
+
+/* --- Change Password --- */
+function showChangePassword(){
+ lastRender=showChangePassword;
+ const c=$("content");
+ c.innerHTML=`<h3>🔑 Change Password</h3>${backBtnHTML()}
+ <label>Current Password</label><input id="curPass" type="password" autocomplete="current-password" placeholder="Enter current password">
+ <label>New Password</label><input id="newPass" type="password" autocomplete="new-password" placeholder="Minimum 6 characters">
+ <label>Confirm New Password</label><input id="newPass2" type="password" autocomplete="new-password" placeholder="Re-enter new password">
+ <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="showPass" style="width:auto;margin:0"> Show passwords</label>
+ <button type="button" class="action" id="changePassBtn">CHANGE PASSWORD</button>
+ <p class="muted">Forgot your current password? Logout from the menu and use "Forgot Password?" on the login page to reset it with an OTP on your Gmail.</p>`;
+ addBackToSettings();
+ $("showPass").onchange=()=>{ const t=$("showPass").checked?"text":"password"; ["curPass","newPass","newPass2"].forEach(id=>$(id).type=t); };
+ $("changePassBtn").onclick=changePassword;
+}
+async function changePassword(){
+ const cur=$("curPass").value, np=$("newPass").value, np2=$("newPass2").value;
+ if(!cur||!np||!np2) return alertBox("Please fill all fields");
+ if(cur!==user.password) return alertBox("Current password is incorrect");
+ if(np.length<6) return alertBox("New password must be at least 6 characters");
+ if(np===cur) return alertBox("New password must be different from the current password");
+ if(np!==np2) return alertBox("New passwords do not match");
+ if(fbAuth && fbAuth.currentUser){
+  try{
+   await fbAuth.currentUser.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(user.email,cur));
+   await fbAuth.currentUser.updatePassword(np);
+  }catch(e){ return alertBox(authMsg(e)); }
+ }
+ user.password=np; saveData();
+ ["curPass","newPass","newPass2"].forEach(id=>$(id).value="");
+ await alertBox("Password changed successfully! Use the new password next time you login.");
+}
+
+/* --- Delete all data --- */
+async function deleteAllData(){
+ if(!(await confirmBox("Delete your account and ALL data (dashboards, products, waste records, settings) from this device?\n\nThis cannot be undone."))) return;
+ const pw=await promptBox("Enter your password to confirm:","password");
+ if(pw===null) return;
+ if(pw!==user.password) return alertBox("Incorrect password");
+ if(cdbOn && cdbCol){ try{ cdbOn=false; clearTimeout(cdbTimer); await cdbCol.doc("profile").delete(); for(const d of dashboards){ try{ await cdbCol.doc("d_"+d.id).delete(); }catch(e){} } }catch(e){ cdbOn=true; return alertBox("Could not delete cloud data. Please try again."); } }
+ if(fbAuth && fbAuth.currentUser){
+  try{
+   cloudReady=false; clearTimeout(cloudTimer); if(cloudUnsub){ cloudUnsub(); cloudUnsub=null; }
+   await fbAuth.currentUser.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(user.email,pw));
+   await fbDb.collection("users").doc(fbAuth.currentUser.uid).delete();
+   await fbAuth.currentUser.delete();
+  }catch(e){ cloudReady=true; return alertBox("Could not delete cloud account: "+authMsg(e)); }
+ }
+ try{ Object.keys(localStorage).filter(k=>k.startsWith("expiry")||k===SETTINGS_KEY).forEach(k=>localStorage.removeItem(k)); }catch(e){}
+ Object.keys(mem).forEach(k=>delete mem[k]);
+ await alertBox("All data has been deleted.");
+ try{ user=null; dashboards=[]; products=[]; waste=[]; customCategories=[]; }catch(e){}
+ try{ location.reload(); }catch(e){}
+ setTimeout(()=>{ try{ if(typeof $==="function" && $("dashboardPage").style.display!=="none"){ showPage("loginPage"); } }catch(e){} },400);
+}
+
+/* --- Software Update --- */
+function cmpVersion(a,b){ const x=String(a).split(".").map(n=>parseInt(n,10)||0), y=String(b).split(".").map(n=>parseInt(n,10)||0); for(let i=0;i<Math.max(x.length,y.length);i++){ const d=(x[i]||0)-(y[i]||0); if(d) return d>0?1:-1; } return 0; }
+function lastCheckedText(){ return settings.lastChecked?esc(prettyDate(settings.lastChecked)+" "+new Date(settings.lastChecked).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})):"Never"; }
+function showUpdate(){
+ lastRender=showUpdate;
+ const c=$("content");
+ c.innerHTML=`<h3>🔄 Software Update</h3>${backBtnHTML()}
+ <div class="product"><b>${esc(APP_INFO.name)}</b><br>Installed version: <b>${esc(APP_VERSION)}</b><br>Last checked: <span id="lastChk">${lastCheckedText()}</span></div>
+ <div id="updMsg"></div>
+ <button type="button" class="action" id="updBtn">CHECK FOR UPDATES</button>
+ <h3 style="margin-top:20px">What's New</h3>
+ <div class="product"><b>Version 1.0.0</b><br>• Multiple dashboards for several shops<br>• Safe Products and Expiry Alert with % lines<br>• Gmail OTP for Forgot Password<br>• Settings: Dark Mode, Notifications, Privacy Policy</div>`;
+ addBackToSettings();
+ $("updBtn").onclick=checkUpdate;
+}
+async function checkUpdate(){
+ const msg=$("updMsg"), btn=$("updBtn");
+ btn.disabled=true; btn.textContent="CHECKING..."; msg.innerHTML="";
+ const done=html=>{ settings.lastChecked=new Date().toISOString(); saveSettings(); if($("lastChk")) $("lastChk").innerHTML=lastCheckedText(); if($("updMsg")) $("updMsg").innerHTML=html; if($("updBtn")){ $("updBtn").disabled=false; $("updBtn").textContent="CHECK FOR UPDATES"; } };
+ if(!UPDATE_CHECK_URL){ done(`<div class="ok-box">✅ You are using the latest version (${esc(APP_VERSION)}).</div><p class="muted">No update server is set up for this app, so no newer version was found.</p>`); return; }
+ try{
+  const ctl=new AbortController(), t=setTimeout(()=>ctl.abort(),8000);
+  const res=await fetch(UPDATE_CHECK_URL,{cache:"no-store",signal:ctl.signal}); clearTimeout(t);
+  if(!res.ok) throw new Error("bad status");
+  const info=await res.json();
+  if(!info||typeof info.version!=="string") throw new Error("bad data");
+  if(cmpVersion(info.version,APP_VERSION)<=0){ done(`<div class="ok-box">✅ You are using the latest version (${esc(APP_VERSION)}).</div>`); return; }
+  done(`<div class="warn-box">🆕 Version <b>${esc(info.version)}</b> is available.${info.notes?"<br>"+esc(String(info.notes)).slice(0,300):""}</div>`);
+  if(typeof info.url==="string"&&/^https:\/\//.test(info.url) && await confirmBox("Version "+info.version+" is available. Open the download page?")) window.open(info.url,"_blank","noopener");
+ }catch(e){ done(`<div class="warn-box">Could not check for updates. Please check your internet connection and try again.</div>`); }
+}
+
+/* --- Privacy Policy --- */
+function showPrivacy(){
+ lastRender=showPrivacy;
+ const c=$("content"), mail=APP_INFO.supportEmail?`<h4>9. Contact</h4><p>Questions about this policy: ${esc(APP_INFO.supportEmail)}</p>`:"";
+ c.innerHTML=`<h3>🔒 Privacy Policy</h3>${backBtnHTML()}
+ <div class="policy product">
+ <p><i>Last updated: 21 November 2026</i></p>
+ <p>${esc(APP_INFO.name)} helps you track product expiry dates for your shop(s). This policy explains what information the app uses and how it is handled.</p>
+ <h4>1. Information the app stores</h4>
+ <ul><li>Account details: name, Gmail address, mobile number, password and an optional profile photo.</li><li>Dashboard details: shop name, mobile number and address.</li><li>Product data: product names, categories, quantities, barcodes, purchase and expiry dates, alert days and waste records.</li><li>App settings such as dark mode and notification choices.</li></ul>
+ <h4>2. Where your data is stored</h4>
+ <p>All of this information is stored only on your own device, inside the app/browser storage. It is not uploaded to our servers. If you clear the app data, uninstall the app or change the device, the data is lost.</p>
+ <h4>3. Email OTP</h4>
+ <p>If you use "Forgot Password", your registered Gmail address, your name and a one-time password are sent through an email delivery service (EmailJS, which delivers the message through Gmail) so that the OTP can reach your inbox. No product data is sent.</p>
+ <h4>4. Permissions</h4>
+ <ul><li>Camera: only when you tap Scan Barcode or Take Photo.</li><li>Photos / files: only when you choose a profile photo.</li><li>Notifications: only if you turn them on in Settings.</li></ul>
+ <h4>5. Sharing</h4>
+ <p>We do not sell your data and we do not share it with anyone, except the email delivery service described above when you request an OTP.</p>
+ <h4>6. Your control</h4>
+ <p>You can edit or delete products and dashboards, remove your photo, change your password, change your profile photo, name, login Gmail and mobile number (Gmail with password confirmation), delete all your data from Settings → Delete All My Data at any time.</p>
+ <h4>7. Security</h4>
+ <p>Your data stays on your device. Please keep your device locked and choose a strong password.</p>
+ <h4>8. Changes</h4>
+ <p>If this policy changes, the updated version will appear here with a new date.</p>
+ ${mail}
+ </div>`;
+ addBackToSettings();
+}
+
+/* --- About --- */
+function showAbout(){
+ lastRender=showAbout;
+ const c=$("content");
+ c.innerHTML=`<h3>ℹ️ About</h3>${backBtnHTML()}
+ <div class="product" style="text-align:center"><div style="font-size:48px">🥬</div><b style="font-size:16px">${esc(APP_INFO.name)}</b><br>Version ${esc(APP_VERSION)}<br><span class="muted">Track expiry dates, manage products across shops and get alerts before products expire.</span></div>
+ <div class="product"><b>Your data</b><br>Stored only on this device.</div>`;
+ addBackToSettings();
+}
+
+/* ---------- My Products ---------- *//* ---------- My Products ---------- */
+function showProductCategories(){
+ lastRender=showProductCategories;
+ categoryListHTML(products,"My Products","No products added yet.",showProductsByCategory);
+}
+function showProductsByCategory(category){
+ lastRender=()=>showProductsByCategory(category);
+ const list=products.filter(p=>p.category===category).sort((a,b)=>(b.addedAt||"").localeCompare(a.addedAt||""));
+ const c=$("content"); c.innerHTML=`<h3>📦 ${esc(category)} Products</h3><button type="button" class="back-btn" id="backProducts">← BACK TO ITEMS</button>`;
+ $("backProducts").onclick=showProductCategories;
+ if(!list.length){ c.innerHTML+=`<div class="empty">No products in this item.</div>`; $("backProducts").onclick=showProductCategories; return; }
+ const groups={};
+ list.forEach(p=>{ const key=p.addedAt?p.addedAt.slice(0,7):"old"; (groups[key]??=[]).push(p); });
+ Object.keys(groups).sort((a,b)=>b.localeCompare(a)).forEach(key=>{
+  const heading=key==="old"?"Added Date Not Recorded":new Date(key+"-01T00:00:00").toLocaleDateString("en-IN",{month:"long",year:"numeric"});
+  const h=document.createElement("div"); h.className="month-heading"; h.textContent=heading; c.appendChild(h);
+  groups[key].forEach(p=>{ const wrap=document.createElement("div"); wrap.innerHTML=productHTML(p); c.appendChild(wrap.firstElementChild); });
+ });
+}
+
+/* ---------- Expiry Alerts ---------- */
+function alertProducts(){ return products.filter(p=>isAlert(p)); }
+let alertOrder="desc", safeOrder="desc";
+function showAlertCategories(){
+ lastRender=showAlertCategories;
+ categoryListHTML(alertProducts(),"🔔 Expiry Alert Categories","No expired or expiring products right now.",showAlertsByCategory,l=>"Average "+averagePct(l,"risk")+"% risk");
+}
+function showAlertsByCategory(category){ meterFolder(category,"risk"); }
+
+/* ---------- Safe Products ---------- */
+function safeProducts(){ return products.filter(p=>getStatus(p)==="Safe"); }
+function showSafeCategories(){
+ lastRender=showSafeCategories;
+ categoryListHTML(safeProducts(),"✅ Safe Product Categories","No safe products right now.",showSafeByCategory,l=>"Average "+averagePct(l,"safe")+"% safe");
+}
+function showSafeByCategory(category){ meterFolder(category,"safe"); }
+
+/* One item (category) folder: lists its products. mode "safe" = Safe Products (safest first), mode "risk" = Expiry Alert (most risky first). */
+function meterFolder(category,mode){
+ const isRisk=mode==="risk", val=p=>isRisk?riskPercent(p):safePercent(p), back=isRisk?showAlertCategories:showSafeCategories;
+ lastRender=()=>meterFolder(category,mode);
+ const base=(isRisk?alertProducts():safeProducts()).filter(p=>p.category===category);
+ const c=$("content");
+ c.innerHTML=`<h3>${isRisk?"🔔":"✅"} ${esc(category)} – ${isRisk?"Expiry Alerts":"Safe Products"}</h3><button type="button" class="back-btn" id="backMeter">← BACK TO ITEMS</button>`;
+ $("backMeter").onclick=back;
+ if(!base.length){ c.innerHTML+=`<div class="empty">${isRisk?"No expiry alerts in this item.":"No safe products in this item."}</div>`; $("backMeter").onclick=back; return; }
+ const list=base.slice().sort((a,b)=>(val(b)-val(a))||a.expiry.localeCompare(b.expiry));
+ list.forEach(p=>{ const wrap=document.createElement("div"); wrap.innerHTML=productHTML(p,true,mode); c.appendChild(wrap.firstElementChild); });
+}
+
+/* ---------- Search ---------- */
+let searchCategory="All";
+function showSearchCategories(){
+ lastRender=showSearchCategories;
+ const c=$("content"); c.innerHTML=`<h3>🔍 Search Product</h3><p class="muted">First select which item/category you want to search in.</p><button type="button" class="category-btn" id="searchAll">🌐 All Products <span style="float:right">${products.length} Items →</span></button><div id="searchCategoryList"></div>`;
+ $("searchAll").onclick=()=>openSearch("All");
+ const holder=$("searchCategoryList");
+ categoriesAll(products).forEach(cat=>{ const b=document.createElement("button"); b.type="button"; b.className="category-btn"; b.innerHTML=`📦 ${esc(cat)} <span style="float:right">${categoryCount(cat)} Items →</span>`; b.onclick=()=>openSearch(cat); holder.appendChild(b); });
+}
+function openSearch(category){
+ searchCategory=category;
+ lastRender=()=>openSearch(category);
+ const c=$("content"); c.innerHTML=`<h3>🔍 Search: ${category==="All"?"All Products":esc(category)}</h3><button type="button" class="back-btn" id="backSearch">← BACK TO ITEMS</button><input id="searchText" placeholder="Enter product name or barcode"><div id="searchResults"></div>`;
+ $("backSearch").onclick=showSearchCategories; $("searchText").oninput=runSearch; runSearch();
+}
+function runSearch(){
+ const q=$("searchText").value.trim().toLowerCase();
+ const found=products.filter(p=>(searchCategory==="All"||p.category===searchCategory)&&(!q||p.name.toLowerCase().includes(q)||(p.barcode||"").toLowerCase().includes(q)));
+ $("searchResults").innerHTML=found.length?found.map(p=>productHTML(p)).join(""):`<div class="empty">No matching product found.</div>`;
+}
+
+/* ---------- Filter / Categories / Stats ---------- */
+function showFilter(){
+ lastRender=showFilter; const c=$("content");
+ c.innerHTML=`<h3>🎚️ Filter Products</h3><select id="filterType"><option value="all">All Products</option><option value="expired">Expired</option><option value="soon">Expiring Soon / Today</option><option value="safe">Safe</option></select><div id="filterResults"></div>`;
+ $("filterType").onchange=filterProducts; filterProducts();
+}
+function filterProducts(){
+ const type=$("filterType").value;
+ const list=products.filter(p=>type==="all"||(type==="expired"&&getStatus(p)==="Expired")||(type==="soon"&&["Expiring Soon","Expires Today"].includes(getStatus(p)))||(type==="safe"&&getStatus(p)==="Safe"));
+ $("filterResults").innerHTML=list.length?list.map(p=>productHTML(p)).join(""):`<div class="empty">No products found.</div>`;
+}
+function showCategories(){
+ lastRender=showCategories; const c=$("content"); c.innerHTML=`<h3>🗂️ Product Categories</h3><button type="button" class="action" id="addCatBtn">➕ ADD NEW CATEGORY</button>`;
+ $("addCatBtn").onclick=async()=>{ const n=await addNewCategory(); if(n!==null) showCategories(); };
+ allCategoryNames().forEach(cat=>{
+  const n=categoryCount(cat), d=document.createElement("div"); d.className="product";
+  const removable=n===0&&customCategories.some(x=>x===cat);
+  d.innerHTML=`<b>${esc(cat)}</b><br>${n} products${removable?`<div class="row-actions"><button type="button" class="small">REMOVE</button></div>`:""}`;
+  if(removable) d.querySelector("button").onclick=async()=>{ if(await confirmBox('Remove category "'+cat+'"?')){ customCategories=customCategories.filter(x=>x!==cat); saveData(); showCategories(); } };
+  c.appendChild(d);
+ });
+}
+
+function showStats(){
+ lastRender=showStats; const c=$("content");
+ const expired=products.filter(p=>getStatus(p)==="Expired").length,
+       soon=products.filter(p=>["Expiring Soon","Expires Today"].includes(getStatus(p))).length,
+       safe=products.filter(p=>getStatus(p)==="Safe").length;
+ const total=products.length, safeP=total?Math.round(safe/total*100):0, expP=total?100-safeP:0;
+ const oneLine=`<div class="slider-box" style="pointer-events:none;user-select:none"><div class="slider-top"><span>🔔 Expiry <b style="color:#dc2626">${expP}%</b></span><span><b style="color:#16a34a">${safeP}%</b> Safe ✅</span></div><div class="pbar" style="height:14px;margin-top:10px;display:flex;background:#e5e7eb">${total?`<div style="width:${expP}%;background:#dc2626"></div><div style="width:${safeP}%;background:#16a34a"></div>`:""}</div><div class="slider-ends" style="margin-top:6px"><span>${total-safe} of ${total} expired / expiring</span><span>${safe} of ${total} safe</span></div></div>`;
+ c.innerHTML=`<h3>📊 Product Statistics</h3>${oneLine}<div class="stat-grid" style="margin-top:12px"><div class="stat-card">Total Products<strong>${products.length}</strong></div><div class="stat-card">Categories<strong>${categoriesIn(products).length}</strong></div><div class="stat-card">Expired<strong>${expired}</strong></div><div class="stat-card">Expiring Soon<strong>${soon}</strong></div><div class="stat-card">Safe<strong>${safe}</strong></div><div class="stat-card">Waste Records<strong>${waste.length}</strong></div></div>`;
+}
+
+/* ---------- Waste record ---------- */
+function showWaste(){
+ lastRender=showWaste; const c=$("content"); c.innerHTML=`<h3>♻️ Waste Record</h3>`;
+ if(!waste.length){ c.innerHTML+=`<div class="empty">No waste records yet.</div>`; return; }
+ waste.slice().reverse().forEach(p=>{
+  const d=document.createElement("div"); d.className="product";
+  d.innerHTML=`<b>${esc(p.name)}</b><br>Category: ${esc(p.category)}<br>Quantity: ${esc(p.qty)}<br>Expiry: ${prettyDate(p.expiry)}<br>Marked Waste: ${prettyDate(p.wastedAt)}<div class="row-actions"><button type="button" class="restore-btn" onclick="restoreWaste(${Number(p.id)})">RESTORE</button><button type="button" class="small" onclick="deleteWaste(${Number(p.id)})">DELETE</button></div>`;
+  c.appendChild(d);
+ });
+}
+
+/* ---------- Edit product ---------- */
+function editProduct(id){
+ const p=products.find(x=>Number(x.id)===Number(id)); if(!p) return;
+ stopScanner();
+ const back=lastRender, presets=["1","3","5","7","15","30"], isPreset=presets.includes(String(p.alertDays));
+ const c=$("content");
+ c.innerHTML=`<h3>✏️ Edit Product</h3><button type="button" class="back-btn" id="editCancelTop">← CANCEL</button>
+ <label>Product Name</label><input id="editName" value="${esc(p.name)}">
+ <label>Category / Item (Optional)</label>${categorySelectHTML("editCategory",p.category===NO_CATEGORY?"":p.category)}
+ <label>Quantity</label><input id="editQty" type="number" min="1" value="${esc(p.qty)}">
+ <label>Barcode Number</label><input id="editBarcode" value="${esc(p.barcode||"")}">
+ <label>Purchase Date</label><input id="editPurchase" type="date" value="${esc(p.purchase)}">
+ <label>Expiry Date</label><input id="editExpiry" type="date" value="${esc(p.expiry)}">
+ <label>Alert Before Expiry</label><select id="editAlertDays">${presets.map(d=>`<option value="${d}"${isPreset&&String(p.alertDays)===d?" selected":""}>${d} Day${d==="1"?"":"s"}</option>`).join("")}<option value="custom"${isPreset?"":" selected"}>Custom Days</option></select>
+ <input id="editCustomDays" type="number" min="1" placeholder="Custom Days" value="${isPreset?"":esc(p.alertDays)}" style="display:${isPreset?"none":"block"}">
+ <button type="button" class="action" id="editSaveBtn">SAVE CHANGES</button>`;
+ $("editAlertDays").onchange=()=>{ $("editCustomDays").style.display=$("editAlertDays").value==="custom"?"block":"none"; };
+ $("editCancelTop").onclick=()=>back();
+ $("editSaveBtn").onclick=async()=>{
+  const name=$("editName").value.trim(), category=$("editCategory").value.trim()||NO_CATEGORY, qty=Number($("editQty").value),
+        barcode=$("editBarcode").value.trim(), purchase=$("editPurchase").value, expiry=$("editExpiry").value;
+  const alertDays=$("editAlertDays").value==="custom"?Number($("editCustomDays").value):Number($("editAlertDays").value);
+  if(!name||!qty||!purchase||!expiry) return alertBox("Please fill all required fields");
+  if(qty<=0) return alertBox("Quantity must be greater than zero");
+  if(!Number.isFinite(alertDays)||alertDays<1) return alertBox("Enter valid alert days");
+  if(expiry<purchase) return alertBox("Expiry date cannot be before purchase date");
+  Object.assign(p,{name,category,qty,barcode,purchase,expiry,alertDays});
+  saveData();
+  back();
+  await alertBox("Product updated successfully!");
+ };
+}
+
+/* ---------- Delete / Waste / Restore ---------- */
+async function deleteProduct(id){
+ if(!(await confirmBox("Delete this product?"))) return;
+ products=products.filter(p=>Number(p.id)!==Number(id)); saveData(); lastRender();
+}
+async function markWaste(id){
+ const p=products.find(x=>Number(x.id)===Number(id)); if(!p) return;
+ if(!(await confirmBox("Move this product to Waste Record?"))) return;
+ products=products.filter(x=>Number(x.id)!==Number(id));
+ waste.push({...p,wastedAt:new Date().toISOString()}); saveData(); lastRender();
+}
+function restoreWaste(id){
+ const p=waste.find(x=>Number(x.id)===Number(id)); if(!p) return;
+ const {wastedAt,...rest}=p;
+ products.push({...rest,addedAt:p.addedAt||new Date().toISOString()});
+ waste=waste.filter(x=>Number(x.id)!==Number(id)); saveData(); showWaste();
+}
+async function deleteWaste(id){
+ if(!(await confirmBox("Permanently delete this waste record?"))) return;
+ waste=waste.filter(x=>Number(x.id)!==Number(id)); saveData(); showWaste();
+}
+
+updateBadge();
+checkStorage();
+</script>
+</body>
+</html>
